@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='og:viewport' content='width=device-width,initial-scale=1'>
+    <meta name="og:description" content="Data Structures Visualizer">
+    <title>Paddling Stroke Web Interface</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Finlandica&display=swap" rel="stylesheet"> 
+  </head>
+  <body style="height: 94vh; overflow-x: hidden;">
+    <nav id="nav1">
+      <ul class="nav-items navleft">
+        <li class="headername">Paddling Stroke Web Interface</li>
+      </ul>
+      <ul class="nav-items navcenter" id="nav">
+        <li><a class="larget" href="../index.html">Something</a></li>
+        <li><a class="larget" href="../hi.html">Something else</a></li>
+      </ul>
+      <ul class="nav-items navright">
+        <li title="Settings"><a onclick="openprefs(); openscreen();"><img src="./assets/settings.png" height="30px" class="logo"></a></li>
+        <li title="Report bug"><a href="https://github.com/skparab1/arfaoui/issues/new" target="_blank"><img src="./assets/reportbuggy.png" height="30px" class="logo"></a></li>
+      </ul>
+    </nav>
+
+    <div class="fullwidth">
+        <h1 id='head' style="font-size: 20px; color: rgba(0,0,0,0);">e</h1>
+    </div>
+
+    <div id="screen1" style="display: block;">
+      <div class="fullwidth">
+
+        <div class="halfleft" id="upload1holder">
+          <label for="file-upload1" id="upload1" class="custom-file-upload">
+            <div class="upload-text">Click to Upload Phone CSV</div>
+          </label>
+          <input id="file-upload1" type="file" accept=".csv"/>  
+        </div>
+        <div class="halfleft" id="upload2holder">
+          <label for="file-upload2" id="upload2" class="custom-file-upload">
+            <div class="upload-text">Click to Upload Watch CSV</div>
+          </label>
+          <input id="file-upload2" type="file" accept=".csv"/>        
+        </div>
+      </div>
+
+      <button class="coolbutton" id="coolbutton" onclick="switchscreens();">Analyze</button>
+
+    </div>
+
+
+    <div id="screen2" style="display: none;">
+      <div class="fullwidth">
+        <div class="halfleft">
+          <div class="halfheightbox">
+            <h1 class="placetext">
+              Your Stroke Graph
+            </h1>
+          </div>
+          <div class="halfheightbox">
+            <h1 class="placetext">
+              Optimal Stroke Graph
+            </h1>
+          </div>
+        </div>
+        <div class="halfleft">
+          <div class="fullheightbox">
+            <h1 class="placetext">
+              Machine Learning Analysis
+            </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- <pre id="output" style="color: white;"></pre> -->
+    
+
+    <div class="largenotif" id="preferences" style="height: fit-content;">
+      <h1 style="font-size: 25px;">Settings</h1>
+      <h3 style="font-size: 15px; margin-bottom: 5px; margin-top: 0px;" id="theme">Theme: (Dark)</h3>
+      <label class="switch" onclick="toggletheme();">
+        <input type="checkbox">
+        <span class="slider round"></span>
+      </label?>
+
+      <div class="close" onclick="closeprefs(); closescreen();">Close</div>
+    </div>
+
+    <script src="js/index.js"></script>
+
+  </body>
+</html>
