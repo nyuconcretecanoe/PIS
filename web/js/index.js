@@ -103,72 +103,61 @@ function switchscreens(){
 }
 
 
-let loadedCsv1;
-let loadedCsv2;
+let phoneAccelerometerCSV;
+let phoneGyroscopeCSV;
+let phoneMagnetometerCSV;
+let watchAccelerometerCSV;
+let watchGyroscopeCSV;
+let watchMagnetometerCSV;
 
 let proceedenabled = false;
 
-
-document.getElementById('file-upload1').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-
-        document.getElementById("upload1").innerHTML = `
-        <div class="upload-text" style="margin-top: 25px;">Phone CSV Uploaded</div>
-        <img src="./assets/greencheck.png" alt="checkmark" style="width: 34%;">
-        `;
-
-        document.getElementById('file-upload1').disabled = true;
-        document.getElementById('upload1holder').style.cursor = "not-allowed";
-        document.getElementById('upload1').style.cursor = "not-allowed";
-        document.getElementById('file-upload1').style.cursor = "not-allowed";
-
-
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const content = e.target.result;
-            // document.getElementById('output').innerText = content;
-            loadedCsv1 = content;
-            // console.log(loadedCsv1);
-
-            if (loadedCsv2 != null){
-                enableanalysis();
-            }
-        };
-        reader.readAsText(file);
-    }
-});
-
-
-document.getElementById('file-upload2').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-
-        document.getElementById("upload2").innerHTML = `
-        <div class="upload-text" style="margin-top: 25px;">Watch CSV Uploaded</div>
-        <img src="./assets/greencheck.png" alt="checkmark" style="width: 34%;">
-        `;
-
-        document.getElementById('file-upload2').disabled = true;
-        document.getElementById('upload2holder').style.cursor = "not-allowed";
-        document.getElementById('upload2').style.cursor = "not-allowed";
-        document.getElementById('file-upload2').style.cursor = "not-allowed";
-
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const content = e.target.result;
-            // document.getElementById('output').innerText = content;
-            loadedCsv2 = content;
-            // console.log(loadedCsv2);
-            if (loadedCsv1 != null){
-                enableanalysis();
-            }
-        };
-        reader.readAsText(file);
-    }
-});
+let i = 1;
+while (i < 7){
+    const j = i;
+    document.getElementById('file-upload'+j).addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+    
+            document.getElementById("upload"+j).innerHTML = `
+            <div class="upload-text" style="width: 50%; text-align: right; float: left;">Uploaded</div>
+            <img src="./assets/greencheck.png" alt="checkmark" style="margin-left: 5%; margin-top: 2%; width: 10%; float: left;">
+            `;
+    
+            document.getElementById('file-upload'+j).disabled = true;
+            document.getElementById('upload'+j).style.cursor = "not-allowed";
+            document.getElementById('file-upload'+j).style.cursor = "not-allowed";
+    
+    
+    
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                // document.getElementById('output').innerText = content;
+                if (j == 1){
+                    phoneAccelerometerCSV = content;
+                } else if (j == 2){
+                    phoneGyroscopeCSV = content;
+                } else if (j == 3){
+                    phoneMagnetometerCSV = content;
+                } else if (j == 4){
+                    watchAccelerometerCSV = content;
+                } else if (j == 5){
+                    watchGyroscopeCSV = content;
+                } else if (j == 6){
+                    watchMagnetometerCSV = content;
+                }
+                console.log(content);
+    
+                if (phoneAccelerometerCSV != null && phoneGyroscopeCSV != null && phoneMagnetometerCSV != null && watchAccelerometerCSV != null && watchGyroscopeCSV != null && watchMagnetometerCSV != null){
+                    enableanalysis();
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+    i += 1;
+}
 
 
 

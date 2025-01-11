@@ -862,7 +862,7 @@ input[type="file"] {
 
   width: 90%;
   margin: 5%;
-  aspect-ratio: 2/1;
+  aspect-ratio: 6/1;
 
   text-align: center;
   display: inline-block;
@@ -872,7 +872,7 @@ input[type="file"] {
 }
 
 .upload-text{
-  margin-top: 25%;
+  margin-top: 7%;
   transform: translateY(-50%);
   font-size: 25px;
 }
