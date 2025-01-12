@@ -30,7 +30,7 @@
         <h1 id='head' style="font-size: 20px; color: rgba(0,0,0,0);">e</h1>
     </div>
 
-    <div id="screen1" style="display: block;">
+    <div id="screen1" style="display: none;">
       <div class="fullwidth">
 
         <div class="halfleft" id="upload1holder">
@@ -74,12 +74,17 @@
     </div>
 
 
-    <div id="screen2" style="display: none;">
+    <div id="screen2" style="display: block;">
       <div class="fullwidth">
         <div class="halfleft">
           <div class="halfheightbox">
             <h1 class="placetext">
               Your Stroke Graph
+              <div class=halfwidth id="middledisplay" style="margin-top: -75px; margin-left: 25px;">
+                <div class='plotgraph' id="plotgraph">
+                  <div id="tickedBox" class="tickedBox"></div>
+                </div>
+              </div>
             </h1>
           </div>
           <div class="halfheightbox">

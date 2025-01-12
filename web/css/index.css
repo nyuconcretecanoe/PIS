@@ -877,6 +877,70 @@ input[type="file"] {
   font-size: 25px;
 }
 
+
+.plotgraph {
+  margin: 5%;
+  width: 70%;
+  aspect-ratio: 2/1;
+  border-bottom: 5px solid var(--contrast);
+  /* cursor: crosshair; */
+  border-left: 5px solid var(--contrast);
+  transform: rotate(0.00001deg);
+}
+
+.point {
+  position: absolute;
+  background-color: var(--main);
+  width: 2.8%;
+  aspect-ratio: 1/1;
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  transition: background-color 0.25s left 10s top 10s;
+}
+
+.tickY {
+  position: absolute;
+  width: 2%;
+  height: 1%;
+  background-color: var(--contrast);
+  transform: translate(-50%, -50%);
+}
+
+.tickX {
+  position: absolute;
+  width: 2%;
+  height: 1%;
+  background-color: var(--contrast);
+  transform: rotate(90deg) translate(-25%, 200%);
+}
+
+.tickLabel {
+  position: absolute;
+  font-size: 20px;
+  color: var(--contrast);
+  font-weight: bold;
+}
+
+
+
+.tickedBox {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 0%;
+  height: 0%;
+  border-top: 2px dashed rgb(200,0,0);
+  border-right: 2px dashed rgb(200,0,0);
+}
+
+.bfequation {
+  font-size: 20px;
+  color: red;
+  transform: rotate(0.01deg);
+  margin-bottom: 0px;
+}
+
+
 .halfheightbox{
   height: 40vh;
   width: 90%;
