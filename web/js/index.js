@@ -116,12 +116,14 @@ function switchscreens(){
     document.getElementById("screen1").style.display = "none";
     document.getElementById("screen2").style.display = "block";
 
-    updateOptimalGraph();
-
     // the dict makedict returns is not important at this point
     makedict(phoneAccelerometerCSV, "PhoneAccel");
     makedict(phoneGyroscopeCSV, "PhoneGyro");
     makedict(phoneMagnetometerCSV, "PhoneMag");
+    
+    splitdata();
+
+    updateOptimalGraph();
 }
 
 function initDraw(){
@@ -184,11 +186,16 @@ function graphString(source, feature) {
 
     let i = 0;
     while (i < arr.length){
-        if (!isNaN(arr[i])){
+        if (!isNaN(arr[i]) && arr[i] != null){
             // point[0]/tickXincrement*10, point[1]/tickYincrement*10*2
-            [coordX, coordY] = getcoord(i/tickXincrement*10, (arr[i]-tickYbasis)/tickYincrement*10*2);
+            if (source == optimaldata){
+                [coordX, coordY] = getcoord(i/tickXincrement*10, (arr[i]-tickYbasis)/tickYincrement*10*2);
+                endstr += `<div class=point style="left: ${coordX}px; top: ${coordY}px;"></div>`;
+            } else {
+                [coordX, coordY] = getcoord(i/tickXincrement*10, (arr[i]-tickYbasis2)/tickYincrement2*10*2);
+                endstr += `<div class=point style="left: ${coordX}px; top: ${coordY}px;"></div>`;
+            }
 
-            endstr += `<div class=point style="left: ${coordX}px; top: ${coordY}px;"></div>`;
         
         }
         i += 1;
@@ -265,7 +272,7 @@ function drawTickY2(x, y, num, push=true) {
     // IMPORTANT: HALFS DISPLAY VALUE
   
     plotgraph2.innerHTML += `
-      <div id="labelY${num}" class=tickLabel style="left: ${coordX-0.04*window.innerWidth}px; top: ${coordY-9.75+2}px;">${goodNumber(tworound(y*(tickYincrement/10)/2+tickYbasis))}</div>
+      <div id="labelY${num}" class=tickLabel style="left: ${coordX-0.04*window.innerWidth}px; top: ${coordY-9.75+2}px;">${goodNumber(tworound(y*(tickYincrement2/10)/2+tickYbasis2))}</div>
       <div id="tickY${num}" class=tickY style="left: ${coordX}px; top: ${coordY+2}px;"></div>`;
 }
 
@@ -363,28 +370,28 @@ function predraw(feature){
         tickYincrement = 0.25;
         label = "m/s²";
     } else if (feature == "PhoneGyroX"){
-        tickYbasis = -0.25;
-        tickYincrement = 0.1;        
+        tickYbasis = -2;
+        tickYincrement = 1;        
         label = "rad/s";
     } else if (feature == "PhoneGyroY"){
-        tickYbasis = -0.5;
-        tickYincrement = 0.1;
+        tickYbasis = -2;
+        tickYincrement = 1;
         label = "μT";
     } else if (feature == "PhoneGyroZ"){
-        tickYbasis = -1.25;
-        tickYincrement = 0.1;
+        tickYbasis = -2;
+        tickYincrement = 1;
         label = "μT";
     } else if (feature == "PhoneMagX"){
-        tickYbasis = -2;
-        tickYincrement = 1;
+        tickYbasis = -140;
+        tickYincrement = 10;
         label = "μT";
     } else if (feature == "PhoneMagY"){
-        tickYbasis = -1.75;
-        tickYincrement = 1;
+        tickYbasis = -60;
+        tickYincrement = 10;
         label = "μT";
     } else if (feature == "PhoneMagZ"){
-        tickYbasis = -2;
-        tickYincrement = 1;
+        tickYbasis = -320;
+        tickYincrement = 10;
         label = "μT";
     }
 
@@ -415,50 +422,42 @@ function predrawsecond(feature){
 
     let label;
 
+    // DONT manually put these in, they should be automatically calculated after trimming and whatnot
     if (feature == "PhoneAccelX"){
-        tickYbasis2 = -1.25;
-        tickYincrement2 = 0.25;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneAccelX);
         label = "m/s²";
     } else if (feature == "PhoneAccelY"){
-        tickYbasis2 = 0;
-        tickYincrement2 = 0.25;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneAccelY);
         label = "m/s²";
     } else if (feature == "PhoneAccelZ"){
-        tickYbasis2 = -0.7;
-        tickYincrement2 = 0.25;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneAccelZ);
         label = "m/s²";
     } else if (feature == "PhoneGyroX"){
-        tickYbasis2 = -0.25;
-        tickYincrement2 = 0.1;        
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneGyroX);      
         label = "rad/s";
     } else if (feature == "PhoneGyroY"){
-        tickYbasis2 = -0.5;
-        tickYincrement2 = 0.1;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneGyroY);
         label = "μT";
     } else if (feature == "PhoneGyroZ"){
-        tickYbasis2 = -1.25;
-        tickYincrement2 = 0.1;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneGyroZ);
         label = "μT";
     } else if (feature == "PhoneMagX"){
-        tickYbasis2 = -2;
-        tickYincrement2 = 1;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneMagX);
         label = "μT";
     } else if (feature == "PhoneMagY"){
-        tickYbasis2 = -1.75;
-        tickYincrement2 = 1;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneMagY);
         label = "μT";
     } else if (feature == "PhoneMagZ"){
-        tickYbasis2 = -2;
-        tickYincrement2 = 1;
+        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneMagZ);
         label = "μT";
     }
 
     plotgraph2.innerHTML = ``;
   
-    let i = tickYbasis;
+    let i = tickYbasis2;
     for (tick of tickYarr){
       drawTickY2(tick[0], tick[1], i, false);
-      i += tickYincrement;
+      i += tickYincrement2;
     }
 
     [coordX, coordY] = getcoord(0,0);
@@ -610,6 +609,196 @@ while (i < 7){
     i += 1;
 }
 
+
+function splitdata(){
+    // this splits sampleDict
+
+    let newdict = {
+        "PhoneAccelX": [],
+        "PhoneAccelY": [],
+        "PhoneAccelZ": [],
+        "PhoneGyroX": [],
+        "PhoneGyroY": [],
+        "PhoneGyroZ": [],
+        "PhoneMagX": [],
+        "PhoneMagY": [],
+        "PhoneMagZ": []
+    };
+
+    // lengths of strokes
+    let streaks = [];
+
+
+    let i = 0;
+    let last = 0;
+    while (i < sampleDict.PhoneAccelX.length){
+        let subj = sampleDict.PhoneGyroX[i];
+
+        if (i != sampleDict.PhoneGyroX.length-1 && subj > sampleDict.PhoneGyroX[i+1] && i-last > 100 && subj > 0.8){
+            //insert spaces
+            let j = 0;
+            while (j < 100){
+                newdict.PhoneAccelX.push(null);
+                newdict.PhoneAccelY.push(null);
+                newdict.PhoneAccelZ.push(null);
+                newdict.PhoneGyroX.push(null);
+                newdict.PhoneGyroY.push(null);
+                newdict.PhoneGyroZ.push(null);
+                newdict.PhoneMagX.push(null);
+                newdict.PhoneMagY.push(null);
+                newdict.PhoneMagZ.push(null);
+                j += 1;
+            }
+
+            streaks.push(i-last); // will usually be around the threshold
+
+            last = i;
+        }
+
+        newdict.PhoneAccelX.push(sampleDict.PhoneAccelX[i]);
+        newdict.PhoneAccelY.push(sampleDict.PhoneAccelY[i]);
+        newdict.PhoneAccelZ.push(sampleDict.PhoneAccelZ[i]);
+        newdict.PhoneGyroX.push(sampleDict.PhoneGyroX[i]);
+        newdict.PhoneGyroY.push(sampleDict.PhoneGyroY[i]);
+        newdict.PhoneGyroZ.push(sampleDict.PhoneGyroZ[i]);
+        newdict.PhoneMagX.push(sampleDict.PhoneMagX[i]);
+        newdict.PhoneMagY.push(sampleDict.PhoneMagY[i]);
+        newdict.PhoneMagZ.push(sampleDict.PhoneMagZ[i]);
+        i += 1;
+    }
+
+    console.log(streaks);
+
+    // noew find out the differences
+    let differences = [];
+    i = 1;
+    while (i < streaks.length){
+        differences.push(streaks[i]-streaks[i-1]);
+        i += 1
+    }
+
+    console.log(differences);
+
+
+    // now i want to find the longest streak for which the absolute value of difference is less than 60
+    let starts = [];
+    let lns = [];
+
+    let currentstart = 0;
+    let currentlen = 0;
+    i = 0;
+    while (i < differences.length){
+        if (differences[i] < 60 && differences[i] > -60){
+            // within regulation, len goes up
+            currentlen += 1;
+        } else {
+            // out of regulation, cut it off
+            lns.push(currentlen);
+            starts.push(currentstart);
+
+            currentlen = 0;
+            currentstart = i+1;
+        }
+
+        i += 1;
+    }
+
+    console.log(starts);
+    console.log(lns);
+
+    // lets look at the max length
+    let mxlen = lns.reduce((a, b) => Math.max(a, b), -Infinity);
+    let mxlenind = lns.indexOf(mxlen);
+
+    let takestartindex = starts[mxlenind];
+    let takelen = Math.min(mxlen, 8);
+
+    console.log(takestartindex);
+    console.log(takelen);
+
+    // now create the data to plot
+    // do it again, but this time dont push it if its not in the range
+
+
+    newdict = {
+        "PhoneAccelX": [],
+        "PhoneAccelY": [],
+        "PhoneAccelZ": [],
+        "PhoneGyroX": [],
+        "PhoneGyroY": [],
+        "PhoneGyroZ": [],
+        "PhoneMagX": [],
+        "PhoneMagY": [],
+        "PhoneMagZ": []
+    };
+
+    i = 0;
+    last = 0;
+    let strokesgone = 0;
+
+    while (i < sampleDict.PhoneAccelX.length){
+        let subj = sampleDict.PhoneGyroX[i];
+
+        if (i != sampleDict.PhoneGyroX.length-1 && subj > sampleDict.PhoneGyroX[i+1] && i-last > 100 && subj > 0.8){
+            //insert spaces
+            let j = 0;
+            while (j < 100 && strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
+                newdict.PhoneAccelX.push(null);
+                newdict.PhoneAccelY.push(null);
+                newdict.PhoneAccelZ.push(null);
+                newdict.PhoneGyroX.push(null);
+                newdict.PhoneGyroY.push(null);
+                newdict.PhoneGyroZ.push(null);
+                newdict.PhoneMagX.push(null);
+                newdict.PhoneMagY.push(null);
+                newdict.PhoneMagZ.push(null);
+                j += 1;
+            }
+
+            strokesgone += 1;
+
+            console.log(strokesgone);
+
+            last = i;
+        }
+
+        if (strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
+
+            newdict.PhoneAccelX.push(sampleDict.PhoneAccelX[i]);
+            newdict.PhoneAccelY.push(sampleDict.PhoneAccelY[i]);
+            newdict.PhoneAccelZ.push(sampleDict.PhoneAccelZ[i]);
+            newdict.PhoneGyroX.push(sampleDict.PhoneGyroX[i]);
+            newdict.PhoneGyroY.push(sampleDict.PhoneGyroY[i]);
+            newdict.PhoneGyroZ.push(sampleDict.PhoneGyroZ[i]);
+            newdict.PhoneMagX.push(sampleDict.PhoneMagX[i]);
+            newdict.PhoneMagY.push(sampleDict.PhoneMagY[i]);
+            newdict.PhoneMagZ.push(sampleDict.PhoneMagZ[i]);
+
+        }
+
+
+        i += 1;
+    }
+
+    sampleDict = newdict;
+}
+
+function setplotparams(arr){
+    const min = (values) => values.reduce((m, v) => (v != null && v < m ? v : m), Infinity);
+    const max = (values) => values.reduce((m, v) => (v != null && v > m ? v : m), -Infinity);
+
+    let mx = max(arr);
+    let mn = min(arr);
+
+    let diff = mx - mn;
+
+    return [mn,diff/4];
+}
+
+
+
+
+
 initDraw();
 
 
@@ -636,13 +825,20 @@ function makesampledict(datastr){
         enddict.PhoneAccelY.push(parseFloat(line[4]));
         enddict.PhoneAccelX.push(parseFloat(line[5]));
 
-        enddict.PhoneGyroZ.push(parseFloat(line[6]));
-        enddict.PhoneGyroY.push(parseFloat(line[7]));
-        enddict.PhoneGyroX.push(parseFloat(line[8]));
+        // watch features at the indices 6 7 8
 
-        enddict.PhoneMagZ.push(parseFloat(line[9]));
-        enddict.PhoneMagY.push(parseFloat(line[10]));
-        enddict.PhoneMagX.push(parseFloat(line[11]));
+        enddict.PhoneGyroZ.push(parseFloat(line[9]));
+        enddict.PhoneGyroY.push(parseFloat(line[10]));
+        enddict.PhoneGyroX.push(parseFloat(line[11]));
+        
+        // watch features at these indices 12 13 14
+
+        enddict.PhoneMagZ.push(parseFloat(line[15]));
+        enddict.PhoneMagY.push(parseFloat(line[16]));
+        enddict.PhoneMagX.push(parseFloat(line[17]));
+    
+        // watch features at these indices 18 19 20
+
         i += 1;
     }
 

@@ -16,6 +16,8 @@ body {
   background-attachment: fixed;
   height: 100vh;
 
+  overflow: scroll;
+
   /* transition: background-color 0.25s; */
 }
 
