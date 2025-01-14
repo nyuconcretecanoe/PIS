@@ -891,7 +891,7 @@ input[type="file"] {
 .point {
   position: absolute;
   background-color: var(--main);
-  width: 2.8%;
+  width: 1%;
   aspect-ratio: 1/1;
   border-radius: 100%;
   transform: translate(-50%, -50%);
@@ -965,4 +965,14 @@ input[type="file"] {
   font-size: 30px;
   color: white;
   margin-top: 3vh;
+}
+
+.featureselect {
+  position: absolute;
+  right: 54%;
+  height: 30px;
+  background-color: var(--bgslight);
+  color: white;
+  border-radius: 10px;
+  border: 3px solid var(--main);
 }

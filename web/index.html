@@ -80,9 +80,21 @@
           <div class="halfheightbox">
             <h1 class="placetext">
               Your Stroke Graph
-              <div class=halfwidth id="middledisplay" style="margin-top: -75px; margin-left: 25px;">
-                <div class='plotgraph' id="plotgraph">
-                  <div id="tickedBox" class="tickedBox"></div>
+              <select name="cars" id="feature" class="featureselect" onchange="updateOptimalGraph();">
+                <option value="PhoneAccelX">Phone Accelerometer X</option>
+                <option value="PhoneAccelY">Phone Accelerometer Y</option>
+                <option value="PhoneAccelZ">Phone Accelerometer Z</option>
+
+                <option value="PhoneGyroX">Phone Gyroscope X</option>
+                <option value="PhoneGyroY">Phone Gyroscope Y</option>
+                <option value="PhoneGyroZ">Phone Gyroscope Z</option>
+
+                <option value="PhoneMagX">Phone Magnetometer X</option>
+                <option value="PhoneMagY">Phone Magnetometer Y</option>
+                <option value="PhoneMagZ">Phone Magnetometer Z</option>
+              </select>
+              <div class=halfwidth id="middledisplay2" style="margin-top: -75px; margin-left: 25px;">
+                <div class='plotgraph' id="plotgraph2">
                 </div>
               </div>
             </h1>
@@ -90,6 +102,10 @@
           <div class="halfheightbox">
             <h1 class="placetext">
               Optimal Stroke Graph
+              <div class=halfwidth id="middledisplay" style="margin-top: -75px; margin-left: 25px;">
+                <div class='plotgraph' id="plotgraph">
+                </div>
+              </div>
             </h1>
           </div>
         </div>

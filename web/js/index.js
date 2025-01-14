@@ -4,10 +4,15 @@ let tickYarr = [];
 let tickXarr = [];
 let pointsarr = [];
 
-let tickYincrement = 10;
-let tickXincrement = 10;
+let tickYbasis = 0;
 
+let tickYincrement = 0.25;
+let tickXincrement = 200;
 
+let tickYbasis2 = 0;
+
+let tickYincrement2 = 0.25;
+let tickXincrement2 = 200;
 
 function openprefs(){
     document.getElementById('preferences').style.display = 'block';
@@ -110,6 +115,13 @@ function switchscreens(){
     }
     document.getElementById("screen1").style.display = "none";
     document.getElementById("screen2").style.display = "block";
+
+    updateOptimalGraph();
+
+    // the dict makedict returns is not important at this point
+    makedict(phoneAccelerometerCSV, "PhoneAccel");
+    makedict(phoneGyroscopeCSV, "PhoneGyro");
+    makedict(phoneMagnetometerCSV, "PhoneMag");
 }
 
 function initDraw(){
@@ -153,14 +165,38 @@ async function growPoint(id){
 function drawPoint(x, y, n, grow) {
     const num = n;
 
+    console.log("drawing point at untampered "+x+" "+y);
+
+
     [coordX, coordY] = getcoord(x,y);
 
-    plotgraph.innerHTML += `<span title="(${pointsarr[n][0].toFixed(2)},${pointsarr[n][1].toFixed(2)})"><div onclick="allowClick = false; deletePoint(${num});" onmouseover="glowPoint(${num});" onmouseout="revertPoint(${num});" id="realPoint${num}" class=point style="left: ${coordX}px; top: ${coordY}px;"></div></span>`;
+    // console.log("drawing point at "+coordX+" "+coordY);
+    plotgraph.innerHTML += `<div class=point style="left: ${coordX}px; top: ${coordY}px;"></div>`;
 
-    if (grow){
-        growPoint("realPoint"+num);
-    }
 }
+
+
+function graphString(source, feature) {
+
+    let arr = source[feature];
+
+    let endstr = ""
+
+    let i = 0;
+    while (i < arr.length){
+        if (!isNaN(arr[i])){
+            // point[0]/tickXincrement*10, point[1]/tickYincrement*10*2
+            [coordX, coordY] = getcoord(i/tickXincrement*10, (arr[i]-tickYbasis)/tickYincrement*10*2);
+
+            endstr += `<div class=point style="left: ${coordX}px; top: ${coordY}px;"></div>`;
+        
+        }
+        i += 1;
+    }
+
+    return endstr;
+}
+
 
 function getcoord(percentX, percentY) {
 
@@ -173,6 +209,10 @@ function getcoord(percentX, percentY) {
     return [x,y];
 }
 
+function tworound(num){
+    return Math.round((num + Number.EPSILON) * 100) / 100
+}
+
   
 function drawTickX(x, y, i, push=true) {
     if (push){
@@ -182,7 +222,21 @@ function drawTickX(x, y, i, push=true) {
     [coordX, coordY] = getcoord(x,y);
 
     plotgraph.innerHTML += `
-    <div id="labelX${i}" class=tickLabel style="left: ${coordX-7.75-3}px; top: ${coordY}px;">${Math.round(x*(tickXincrement/10))}</div>
+    <div id="labelX${i}" class=tickLabel style="left: ${coordX-7.75-3}px; top: ${coordY}px;">${tworound(x*(tickXincrement/1000))}</div>
+    <div id="tickX${i}" class=tickX style="left: ${coordX-3}px; top: ${coordY-0.017*plotgraph.offsetHeight}px;"></div>`;
+}
+
+
+
+function drawTickX2(x, y, i, push=true) {
+    if (push){
+        tickXarr.push([x, y]);
+    }
+
+    [coordX, coordY] = getcoord(x,y);
+
+    plotgraph2.innerHTML += `
+    <div id="labelX${i}" class=tickLabel style="left: ${coordX-7.75-3}px; top: ${coordY}px;">${tworound(x*(tickXincrement/1000))}</div>
     <div id="tickX${i}" class=tickX style="left: ${coordX-3}px; top: ${coordY-0.017*plotgraph.offsetHeight}px;"></div>`;
 }
 
@@ -197,7 +251,21 @@ function drawTickY(x, y, num, push=true) {
     // IMPORTANT: HALFS DISPLAY VALUE
   
     plotgraph.innerHTML += `
-      <div id="labelY${num}" class=tickLabel style="left: ${coordX-0.03*window.innerWidth}px; top: ${coordY-9.75+2}px;">${goodNumber(Math.round(y*(tickYincrement/10)/2))}</div>
+      <div id="labelY${num}" class=tickLabel style="left: ${coordX-0.04*window.innerWidth}px; top: ${coordY-9.75+2}px;">${goodNumber(tworound(y*(tickYincrement/10)/2+tickYbasis))}</div>
+      <div id="tickY${num}" class=tickY style="left: ${coordX}px; top: ${coordY+2}px;"></div>`;
+}
+
+function drawTickY2(x, y, num, push=true) {
+    if (push){
+        tickYarr.push([x, y]);
+    }
+  
+    [coordX, coordY] = getcoord(x,y);
+
+    // IMPORTANT: HALFS DISPLAY VALUE
+  
+    plotgraph2.innerHTML += `
+      <div id="labelY${num}" class=tickLabel style="left: ${coordX-0.04*window.innerWidth}px; top: ${coordY-9.75+2}px;">${goodNumber(tworound(y*(tickYincrement/10)/2+tickYbasis))}</div>
       <div id="tickY${num}" class=tickY style="left: ${coordX}px; top: ${coordY+2}px;"></div>`;
 }
 
@@ -247,25 +315,163 @@ function addpointmanual(x, y){
     let newpts = [x,y];
     pointsarr.push(newpts);
 
-    redrawlite();
+    lite();
 
-    monitorChange(x,y);
+    // in this case, not even needed since we pre-scale axes
+    // monitorChange(x,y);
   }
 
 
-
+// we dont actually care about this for this i think
 function monitorChange(x,y){
+
+    if (x <= tickXincrement*10 && y <= tickYincrement*5){
+        return;
+    }
   
     while (x > tickXincrement*10){
-      tickXincrement = tickXincrement + 1;
+      tickXincrement = tickXincrement + 0.01;
     }
   
   
     while (y > tickYincrement*5){
-      tickYincrement = tickYincrement + 1;
+      tickYincrement = tickYincrement + 0.01;
     }
+
+    console.log("increments changed",tickXincrement, tickYincrement);
+
   
     redraw();
+}
+
+
+function predraw(feature){
+    console.log('feature',feature);
+
+    let label;
+
+    if (feature == "PhoneAccelX"){
+        tickYbasis = -1.25;
+        tickYincrement = 0.25;
+        label = "m/s²";
+    } else if (feature == "PhoneAccelY"){
+        tickYbasis = 0;
+        tickYincrement = 0.25;
+        label = "m/s²";
+    } else if (feature == "PhoneAccelZ"){
+        tickYbasis = -0.7;
+        tickYincrement = 0.25;
+        label = "m/s²";
+    } else if (feature == "PhoneGyroX"){
+        tickYbasis = -0.25;
+        tickYincrement = 0.1;        
+        label = "rad/s";
+    } else if (feature == "PhoneGyroY"){
+        tickYbasis = -0.5;
+        tickYincrement = 0.1;
+        label = "μT";
+    } else if (feature == "PhoneGyroZ"){
+        tickYbasis = -1.25;
+        tickYincrement = 0.1;
+        label = "μT";
+    } else if (feature == "PhoneMagX"){
+        tickYbasis = -2;
+        tickYincrement = 1;
+        label = "μT";
+    } else if (feature == "PhoneMagY"){
+        tickYbasis = -1.75;
+        tickYincrement = 1;
+        label = "μT";
+    } else if (feature == "PhoneMagZ"){
+        tickYbasis = -2;
+        tickYincrement = 1;
+        label = "μT";
+    }
+
+    plotgraph.innerHTML = ``;
+  
+    let i = tickYbasis;
+    for (tick of tickYarr){
+      drawTickY(tick[0], tick[1], i, false);
+      i += tickYincrement;
+    }
+
+    [coordX, coordY] = getcoord(0,0);
+
+    plotgraph.innerHTML += `
+    <div class=tickLabel style="left: ${coordX-0.035*window.innerWidth}px; top: ${coordY-9.75+2}px;">${label}</div>`;
+
+  
+    i = 0;
+    for (tick of tickXarr){
+      drawTickX(tick[0], tick[1], i, false);
+      i += 1;
+    }
+}
+
+
+function predrawsecond(feature){
+    console.log('feature',feature);
+
+    let label;
+
+    if (feature == "PhoneAccelX"){
+        tickYbasis2 = -1.25;
+        tickYincrement2 = 0.25;
+        label = "m/s²";
+    } else if (feature == "PhoneAccelY"){
+        tickYbasis2 = 0;
+        tickYincrement2 = 0.25;
+        label = "m/s²";
+    } else if (feature == "PhoneAccelZ"){
+        tickYbasis2 = -0.7;
+        tickYincrement2 = 0.25;
+        label = "m/s²";
+    } else if (feature == "PhoneGyroX"){
+        tickYbasis2 = -0.25;
+        tickYincrement2 = 0.1;        
+        label = "rad/s";
+    } else if (feature == "PhoneGyroY"){
+        tickYbasis2 = -0.5;
+        tickYincrement2 = 0.1;
+        label = "μT";
+    } else if (feature == "PhoneGyroZ"){
+        tickYbasis2 = -1.25;
+        tickYincrement2 = 0.1;
+        label = "μT";
+    } else if (feature == "PhoneMagX"){
+        tickYbasis2 = -2;
+        tickYincrement2 = 1;
+        label = "μT";
+    } else if (feature == "PhoneMagY"){
+        tickYbasis2 = -1.75;
+        tickYincrement2 = 1;
+        label = "μT";
+    } else if (feature == "PhoneMagZ"){
+        tickYbasis2 = -2;
+        tickYincrement2 = 1;
+        label = "μT";
+    }
+
+    plotgraph2.innerHTML = ``;
+  
+    let i = tickYbasis;
+    for (tick of tickYarr){
+      drawTickY2(tick[0], tick[1], i, false);
+      i += tickYincrement;
+    }
+
+    [coordX, coordY] = getcoord(0,0);
+
+    plotgraph2.innerHTML += `
+    <div class=tickLabel style="left: ${coordX-0.035*window.innerWidth}px; top: ${coordY-9.75+2}px;">${label}</div>`;
+
+  
+    i = 0;
+    for (tick of tickXarr){
+      drawTickX2(tick[0], tick[1], i, false);
+      i += 1;
+    }
 }
 
 
@@ -274,10 +480,10 @@ function redraw(pointgrow = null){
 
     plotgraph.innerHTML = ``;
   
-    let i = 0;
+    let i = tickYbasis;
     for (tick of tickYarr){
       drawTickY(tick[0], tick[1], i, false);
-      i += 1;
+      i += tickYincrement;
     }
   
     i = 0;
@@ -290,11 +496,11 @@ function redraw(pointgrow = null){
   
     i = 0;
     for (point of pointsarr){
-      drawPoint(point[0]/tickXincrement*10, point[1]/tickYincrement*10*2, i, (pointgrow == i));
+      drawPoint(point[0]/tickXincrement*10, (point[1]-tickYbasis)/tickYincrement*10*2, i, (pointgrow == i));
       i += 1;
     }
   
-    plotgraph.innerHTML += `<div id="tickedBox" class="tickedBox"></div>`;
+    // plotgraph.innerHTML += `<div id="tickedBox" class="tickedBox"></div>`;
   
 }
 
@@ -303,12 +509,12 @@ function redrawlite(){
   
     let i = pointsarr.length-1;
   
-    console.log("point "+i+" being drawn");
+    // console.log("point "+i+" being drawn");
     point = pointsarr[i];
-    drawPoint(point[0]/tickXincrement*10, point[1]/tickYincrement*10*2, i, true)
+    drawPoint(point[0]/tickXincrement*10, (point[1]-tickYbasis)/tickYincrement*10*2, i, true)
 }
 
-function makedict(datastr){
+function makedict(datastr, type){
     let spltup = datastr.split('\n');
 
     let enddict = {
@@ -322,12 +528,26 @@ function makedict(datastr){
     let i = 1;
     while (i < spltup.length){
         let line = spltup[i].split(',');
-        enddict.time.push(line[0]);
-        enddict.seconds_elapsed.push(line[1]);
-        enddict.x.push(line[2]);
-        enddict.y.push(line[3]);
-        enddict.z.push(line[4]);
+        enddict.time.push(parseInt(line[0]));
+        enddict.seconds_elapsed.push(parseInt(line[1]));
+        enddict.x.push(parseFloat(line[2]));
+        enddict.y.push(parseFloat(line[3]));
+        enddict.z.push(parseFloat(line[4]));
         i += 1;
+    }
+
+    if (type == "PhoneAccel"){
+        sampleDict.PhoneAccelX = enddict.x;
+        sampleDict.PhoneAccelY = enddict.y;
+        sampleDict.PhoneAccelZ = enddict.z;
+    } else if (type == "PhoneGyro"){
+        sampleDict.PhoneGyroX = enddict.x;
+        sampleDict.PhoneGyroY = enddict.y;
+        sampleDict.PhoneGyroZ = enddict.z;
+    } else if (type == "PhoneMag"){
+        sampleDict.PhoneMagX = enddict.x;
+        sampleDict.PhoneMagY = enddict.y;
+        sampleDict.PhoneMagZ = enddict.z;
     }
 
     return enddict;
@@ -393,6 +613,90 @@ while (i < 7){
 initDraw();
 
 
+
+function makesampledict(datastr){
+    let spltup = datastr.split('\n');
+
+    let enddict = {
+        "PhoneAccelX": [],
+        "PhoneAccelY": [],
+        "PhoneAccelZ": [],
+        "PhoneGyroX": [],
+        "PhoneGyroY": [],
+        "PhoneGyroZ": [],
+        "PhoneMagX": [],
+        "PhoneMagY": [],
+        "PhoneMagZ": []
+    };
+
+    let i = 1;
+    while (i < spltup.length){
+        let line = spltup[i].split(',');
+        enddict.PhoneAccelZ.push(parseFloat(line[3]));
+        enddict.PhoneAccelY.push(parseFloat(line[4]));
+        enddict.PhoneAccelX.push(parseFloat(line[5]));
+
+        enddict.PhoneGyroZ.push(parseFloat(line[6]));
+        enddict.PhoneGyroY.push(parseFloat(line[7]));
+        enddict.PhoneGyroX.push(parseFloat(line[8]));
+
+        enddict.PhoneMagZ.push(parseFloat(line[9]));
+        enddict.PhoneMagY.push(parseFloat(line[10]));
+        enddict.PhoneMagX.push(parseFloat(line[11]));
+        i += 1;
+    }
+
+    return enddict;
+}
+
+let optimaldata;
+
+
+function plotOptimalFeature(feature){
+    predraw(feature);
+    plotgraph.innerHTML += graphString(optimaldata, feature);
+
+    predrawsecond(feature);
+    plotgraph2.innerHTML += graphString(sampleDict, feature);
+
+    // CAREFUL: Not stored in pointsarr
+}
+
+function updateOptimalGraph(){
+    let feature = document.getElementById('feature').value;
+    pointsarr = [];
+    redraw();
+    plotOptimalFeature(feature);
+}
+
+async function fetchCSV(url) {
+    try {
+        const response = await fetch(url);
+        const data = await response.text();
+        console.log(data);
+        optimaldata = makesampledict(data);
+        console.log(optimaldata);
+        updateOptimalGraph();
+    } catch (error) {
+        console.error('Error fetching CSV:', error);
+    }
+}
+
+
+let sampleDict = {
+    "PhoneAccelX": [],
+    "PhoneAccelY": [],
+    "PhoneAccelZ": [],
+    "PhoneGyroX": [],
+    "PhoneGyroY": [],
+    "PhoneGyroZ": [],
+    "PhoneMagX": [],
+    "PhoneMagY": [],
+    "PhoneMagZ": []
+};
+
+
+fetchCSV('https://concretecanoe.skparab1.com/web/assets/Anthony_Optimal_Split_Forweb.csv');
 
 // load the settings from localstorage
 let theme = localStorage.getItem('bttheme');
