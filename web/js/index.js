@@ -562,48 +562,109 @@ let watchMagnetometerCSV;
 
 let proceedenabled = false;
 
+function gettp(nm){
+    if (nm.includes("Accelerometer")){
+        return "Accelerometer";
+    } else if (nm.includes("Gyroscope")){
+        return "Gyroscope";
+    } else if (nm.includes("Magnetometer")){
+        return "Magnetometer";
+    }     
+}
+
 let i = 1;
-while (i < 7){
+while (i < 3){
     const j = i;
     document.getElementById('file-upload'+j).addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
+        if (event.target.files.length != 3){
+            alert("You must upload three files.");
+        } else if (true) {
+
+            const file1 = event.target.files[0];
+            const file2 = event.target.files[1];
+            const file3 = event.target.files[2];
     
-            document.getElementById("upload"+j).innerHTML = `
-            <div class="upload-text" style="width: 50%; text-align: right; float: left;">Uploaded</div>
-            <img src="./assets/greencheck.png" alt="checkmark" style="margin-left: 5%; margin-top: 2%; width: 10%; float: left;">
-            `;
-    
-            document.getElementById('file-upload'+j).disabled = true;
-            document.getElementById('upload'+j).style.cursor = "not-allowed";
-            document.getElementById('file-upload'+j).style.cursor = "not-allowed";
-    
-    
-    
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const content = e.target.result;
-                // document.getElementById('output').innerText = content;
-                if (j == 1){
-                    phoneAccelerometerCSV = content;
-                } else if (j == 2){
-                    phoneGyroscopeCSV = content;
-                } else if (j == 3){
-                    phoneMagnetometerCSV = content;
-                } else if (j == 4){
-                    watchAccelerometerCSV = content;
-                } else if (j == 5){
-                    watchGyroscopeCSV = content;
-                } else if (j == 6){
-                    watchMagnetometerCSV = content;
+            // check all three valid files
+            if ((file1.name.includes("Accelerometer") || file1.name.includes("Gyroscope") || file1.name.includes("Magnetometer")) && 
+                (file2.name.includes("Accelerometer") || file2.name.includes("Gyroscope") || file2.name.includes("Magnetometer")) &&
+                (file3.name.includes("Accelerometer") || file3.name.includes("Gyroscope") || file3.name.includes("Magnetometer"))){
+                document.getElementById("upload"+j).innerHTML = `
+                <div class="upload-text" style="width: 50%; text-align: right; float: left;">Uploaded</div>
+                <img src="./assets/greencheck.png" alt="checkmark" style="margin-left: 5%; margin-top: 2%; width: 10%; float: left;">
+                `;
+        
+                document.getElementById('file-upload'+j).disabled = true;
+                document.getElementById('upload'+j).style.cursor = "not-allowed";
+                document.getElementById('file-upload'+j).style.cursor = "not-allowed";
+
+        
+                let tp;
+        
+                const readeraccel = new FileReader();
+                readeraccel.onload = function(e) {
+                    const content = e.target.result;
+                    console.log(e);
+                    // document.getElementById('output').innerText = content;
+                    if (j == 1){
+                        phoneAccelerometerCSV = content;
+                    } else if (j == 2){
+                        watchAccelerometerCSV = content;
+                    }
+                    console.log(content);
+        
+                    if (phoneAccelerometerCSV != null && phoneGyroscopeCSV != null && phoneMagnetometerCSV != null && watchAccelerometerCSV != null && watchGyroscopeCSV != null && watchMagnetometerCSV != null){
+                        enableanalysis();
+                    }
+                };
+
+                const readergyro = new FileReader();
+                readergyro.onload = function(e) {
+                    const content = e.target.result;
+                    console.log(e);
+                    // document.getElementById('output').innerText = content;
+                    if (j == 1){
+                        phoneGyroscopeCSV = content;
+                    } else if (j == 2){
+                        watchGyroscopeCSV = content;
+                    }
+                    console.log(content);
+        
+                    if (phoneAccelerometerCSV != null && phoneGyroscopeCSV != null && phoneMagnetometerCSV != null && watchAccelerometerCSV != null && watchGyroscopeCSV != null && watchMagnetometerCSV != null){
+                        enableanalysis();
+                    }
+                };
+
+                const readermag = new FileReader();
+                readermag.onload = function(e) {
+                    const content = e.target.result;
+                    console.log(e);
+                    // document.getElementById('output').innerText = content;
+                    if (j == 1){
+                        phoneMagnetometerCSV = content;
+                    } else if (j == 2){
+                        watchMagnetometerCSV = content;
+                    }
+                    console.log(content);
+        
+                    if (phoneAccelerometerCSV != null && phoneGyroscopeCSV != null && phoneMagnetometerCSV != null && watchAccelerometerCSV != null && watchGyroscopeCSV != null && watchMagnetometerCSV != null){
+                        enableanalysis();
+                    }
+                };
+
+                let fls = [file1, file2, file3];
+                
+                for (fl of fls){
+                    if (fl.name.includes("Accelerometer")){
+                        readeraccel.readAsText(fl);
+                    } else if (fl.name.includes("Gyroscope")){
+                        readergyro.readAsText(fl);
+                    } else if (fl.name.includes("Magnetometer")){
+                        readermag.readAsText(fl);
+                    }   
                 }
-                console.log(content);
-    
-                if (phoneAccelerometerCSV != null && phoneGyroscopeCSV != null && phoneMagnetometerCSV != null && watchAccelerometerCSV != null && watchGyroscopeCSV != null && watchMagnetometerCSV != null){
-                    enableanalysis();
-                }
-            };
-            reader.readAsText(file);
+
+
+            }   
         }
     });
     i += 1;
@@ -634,7 +695,9 @@ function splitdata(){
     while (i < sampleDict.PhoneAccelX.length){
         let subj = sampleDict.PhoneGyroX[i];
 
-        if (i != sampleDict.PhoneGyroX.length-1 && subj > sampleDict.PhoneGyroX[i+1] && i-last > 100 && subj > 0.8){
+        // i think this is way more surefire now
+
+        if (i < sampleDict.PhoneGyroX.length-3 && subj > sampleDict.PhoneGyroX[i+1] && sampleDict.PhoneGyroX[i+1] > sampleDict.PhoneGyroX[i+2] && sampleDict.PhoneGyroX[i+2] > sampleDict.PhoneGyroX[i+3] && i-last > 100 && subj > 0.8){
             //insert spaces
             let j = 0;
             while (j < 100){
