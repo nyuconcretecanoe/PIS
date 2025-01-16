@@ -120,6 +120,10 @@ function switchscreens(){
     makedict(phoneAccelerometerCSV, "PhoneAccel");
     makedict(phoneGyroscopeCSV, "PhoneGyro");
     makedict(phoneMagnetometerCSV, "PhoneMag");
+
+    makedict(watchAccelerometerCSV, "WatchAccel");
+    makedict(watchGyroscopeCSV, "WatchGyro");
+    makedict(watchMagnetometerCSV, "WatchMag");
     
     splitdata();
 
@@ -535,7 +539,11 @@ function makedict(datastr, type){
         i += 1;
     }
 
+    console.log(type,enddict);
+
+
     if (type == "PhoneAccel"){
+        sampleDict.PhoneTimes = enddict.time;
         sampleDict.PhoneAccelX = enddict.x;
         sampleDict.PhoneAccelY = enddict.y;
         sampleDict.PhoneAccelZ = enddict.z;
@@ -547,6 +555,19 @@ function makedict(datastr, type){
         sampleDict.PhoneMagX = enddict.x;
         sampleDict.PhoneMagY = enddict.y;
         sampleDict.PhoneMagZ = enddict.z;
+    } else if (type == "WatchAccel"){
+        sampleDict.WatchTimes = enddict.time;
+        sampleDict.WatchAccelX = enddict.x;
+        sampleDict.WatchAccelY = enddict.y;
+        sampleDict.WatchAccelZ = enddict.z;
+    } else if (type == "WatchGyro"){
+        sampleDict.WatchGyroX = enddict.x;
+        sampleDict.WatchGyroY = enddict.y;
+        sampleDict.WatchGyroZ = enddict.z;
+    } else if (type == "WatchMag"){
+        sampleDict.WatchMagX = enddict.x;
+        sampleDict.WatchMagY = enddict.y;
+        sampleDict.WatchMagZ = enddict.z;
     }
 
     return enddict;
@@ -686,6 +707,77 @@ function splitdata(){
         "PhoneMagZ": []
     };
 
+
+    // one thing to take into account
+    // is the phone aligned with the watch
+    // if not, we need to align it
+
+    let currentwatchtime = sampleDict.WatchTimes[0];
+    let currentphonetime = sampleDict.PhoneTimes[0];
+    let pushmetric;
+
+    if (currentwatchtime < currentphonetime){
+        // watch started early, lets push it
+        pushmetric = "watch";
+    } else {
+        // phone started early, lets push it
+        pushmetric = "phone";
+    }
+
+    // keep pushing it until the opposite is true
+    let windex = 0;
+    let pindex = 0;
+    while (true){
+        currentwatchtime = sampleDict.WatchTimes[windex];
+        currentphonetime = sampleDict.PhoneTimes[pindex];
+
+        if (currentwatchtime > currentphonetime && pushmetric == "watch"){
+            // we can break now
+            break;
+        }
+
+        if (currentwatchtime < currentphonetime && pushmetric == "phone"){
+            // we can break now
+            break;
+        }
+
+        if (pushmetric == "watch"){
+            windex += 1;
+        } else {
+            pindex += 1;
+        }
+    }
+
+    console.log("use indices ", windex, pindex, "with times", sampleDict.WatchTimes[windex], sampleDict.PhoneTimes[pindex]);
+    // notify of the delta. raise error if its too much
+
+    console.log("delta is", (sampleDict.WatchTimes[windex]-sampleDict.PhoneTimes[pindex])/(1000000000));
+
+    if (windex != 0){
+        // slice index
+        // slice all of the watch attributes of sample dict, keep windex and beyond
+        sampleDict.WatchTimes = sampleDict.WatchTimes.slice(windex);
+        sampleDict.WatchAccelX = sampleDict.WatchAccelX.slice(windex);
+        sampleDict.WatchAccelY = sampleDict.WatchAccelY.slice(windex);
+        sampleDict.WatchAccelZ = sampleDict.WatchAccelZ.slice(windex);
+        sampleDict.WatchGyroX = sampleDict.WatchGyroX.slice(windex);
+        sampleDict.WatchGyroY = sampleDict.WatchGyroY.slice(windex);
+        sampleDict.WatchMagZ = sampleDict.WatchMagZ.slice(windex);
+        sampleDict.WatchMagY = sampleDict.WatchMagY.slice(windex);
+        sampleDict.WatchMagZ = sampleDict.WatchMagZ.slice(windex);
+    } else {
+        // the same thing but for phone attributes
+        sampleDict.PhoneTimes = sampleDict.PhoneTimes.slice(pindex);
+        sampleDict.PhoneAccelX = sampleDict.PhoneAccelX.slice(pindex);
+        sampleDict.PhoneAccelY = sampleDict.PhoneAccelY.slice(pindex);
+        sampleDict.PhoneAccelZ = sampleDict.PhoneAccelZ.slice(pindex);
+        sampleDict.PhoneGyroX = sampleDict.PhoneGyroX.slice(pindex);
+        sampleDict.PhoneGyroY = sampleDict.PhoneGyroY.slice(pindex);
+        sampleDict.PhoneMagZ = sampleDict.PhoneMagZ.slice(pindex);
+        sampleDict.PhoneMagY = sampleDict.PhoneMagY.slice(pindex);
+        sampleDict.PhoneMagZ = sampleDict.PhoneMagZ.slice(pindex);
+    }
+
     // lengths of strokes
     let streaks = [];
 
@@ -779,6 +871,7 @@ function splitdata(){
     console.log(takestartindex);
     console.log(takelen);
 
+
     // now create the data to plot
     // do it again, but this time dont push it if its not in the range
 
@@ -843,7 +936,15 @@ function splitdata(){
         i += 1;
     }
 
-    sampleDict = newdict;
+    sampleDict.PhoneAccelX = newdict.PhoneAccelX;
+    sampleDict.PhoneAccelY = newdict.PhoneAccelY;
+    sampleDict.PhoneAccelZ = newdict.PhoneAccelZ;
+    sampleDict.PhoneGyroX = newdict.PhoneGyroX;
+    sampleDict.PhoneGyroY = newdict.PhoneGyroY;
+    sampleDict.PhoneGyroZ = newdict.PhoneGyroZ;
+    sampleDict.PhoneMagX = newdict.PhoneMagX;
+    sampleDict.PhoneMagY = newdict.PhoneMagY;
+    sampleDict.PhoneMagZ = newdict.PhoneMagZ;
 }
 
 function setplotparams(arr){
@@ -951,7 +1052,20 @@ let sampleDict = {
     "PhoneGyroZ": [],
     "PhoneMagX": [],
     "PhoneMagY": [],
-    "PhoneMagZ": []
+    "PhoneMagZ": [],
+
+    "WatchAccelX": [],
+    "WatchAccelY": [],
+    "WatchAccelZ": [],
+    "WatchGyroX": [],
+    "WatchGyroY": [],
+    "WatchGyroZ": [],
+    "WatchMagX": [],
+    "WatchMagY": [],
+    "WatchMagZ": [],
+
+    "PhoneTimes": [],
+    "WatchTimes": []
 };
 
 
