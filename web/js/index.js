@@ -704,7 +704,20 @@ function splitdata(){
         "PhoneGyroZ": [],
         "PhoneMagX": [],
         "PhoneMagY": [],
-        "PhoneMagZ": []
+        "PhoneMagZ": [],
+    
+        "WatchAccelX": [],
+        "WatchAccelY": [],
+        "WatchAccelZ": [],
+        "WatchGyroX": [],
+        "WatchGyroY": [],
+        "WatchGyroZ": [],
+        "WatchMagX": [],
+        "WatchMagY": [],
+        "WatchMagZ": [],
+    
+        "PhoneTimes": [],
+        "WatchTimes": []
     };
 
 
@@ -728,6 +741,8 @@ function splitdata(){
     let windex = 0;
     let pindex = 0;
     while (true){
+        // alert("pushing", currentwatchtime-currentphonetime,pushmetric);
+        // console.log("pushing", currentwatchtime,currentphonetime, currentwatchtime-currentphonetime,pushmetric);
         currentwatchtime = sampleDict.WatchTimes[windex];
         currentphonetime = sampleDict.PhoneTimes[pindex];
 
@@ -778,8 +793,38 @@ function splitdata(){
         sampleDict.PhoneMagZ = sampleDict.PhoneMagZ.slice(pindex);
     }
 
+    
+
     // lengths of strokes
     let streaks = [];
+
+
+    let strokearr = [];
+
+    let currentstroke = {
+        "PhoneAccelX": [],
+        "PhoneAccelY": [],
+        "PhoneAccelZ": [],
+        "PhoneGyroX": [],
+        "PhoneGyroY": [],
+        "PhoneGyroZ": [],
+        "PhoneMagX": [],
+        "PhoneMagY": [],
+        "PhoneMagZ": [],
+    
+        "WatchAccelX": [],
+        "WatchAccelY": [],
+        "WatchAccelZ": [],
+        "WatchGyroX": [],
+        "WatchGyroY": [],
+        "WatchGyroZ": [],
+        "WatchMagX": [],
+        "WatchMagY": [],
+        "WatchMagZ": [],
+    
+        "PhoneTimes": [],
+        "WatchTimes": []
+    };
 
 
     let i = 0;
@@ -789,10 +834,14 @@ function splitdata(){
 
         // i think this is way more surefire now
 
-        if (i < sampleDict.PhoneGyroX.length-3 && subj > sampleDict.PhoneGyroX[i+1] && sampleDict.PhoneGyroX[i+1] > sampleDict.PhoneGyroX[i+2] && sampleDict.PhoneGyroX[i+2] > sampleDict.PhoneGyroX[i+3] && i-last > 100 && subj > 0.8){
+        if (i < sampleDict.PhoneGyroX.length-4 && subj > sampleDict.PhoneGyroX[i+1] && sampleDict.PhoneGyroX[i+1] > sampleDict.PhoneGyroX[i+2] && sampleDict.PhoneGyroX[i+3] > sampleDict.PhoneGyroX[i+4] && i-last > 100 && subj > 0.8){
             //insert spaces
             let j = 0;
             while (j < 100){
+
+                newdict.PhoneTimes.push(null);
+                newdict.WatchTimes.push(null);
+
                 newdict.PhoneAccelX.push(null);
                 newdict.PhoneAccelY.push(null);
                 newdict.PhoneAccelZ.push(null);
@@ -802,13 +851,53 @@ function splitdata(){
                 newdict.PhoneMagX.push(null);
                 newdict.PhoneMagY.push(null);
                 newdict.PhoneMagZ.push(null);
+
+                newdict.WatchAccelX.push(null);
+                newdict.WatchAccelY.push(null);
+                newdict.WatchAccelZ.push(null);
+                newdict.WatchGyroX.push(null);
+                newdict.WatchGyroY.push(null);
+                newdict.WatchGyroZ.push(null);
+                newdict.WatchMagX.push(null);
+                newdict.WatchMagY.push(null);
+                newdict.WatchMagZ.push(null);
                 j += 1;
             }
+
+            strokearr.push(currentstroke);
+                 
+            currentstroke = {
+                "PhoneAccelX": [],
+                "PhoneAccelY": [],
+                "PhoneAccelZ": [],
+                "PhoneGyroX": [],
+                "PhoneGyroY": [],
+                "PhoneGyroZ": [],
+                "PhoneMagX": [],
+                "PhoneMagY": [],
+                "PhoneMagZ": [],
+            
+                "WatchAccelX": [],
+                "WatchAccelY": [],
+                "WatchAccelZ": [],
+                "WatchGyroX": [],
+                "WatchGyroY": [],
+                "WatchGyroZ": [],
+                "WatchMagX": [],
+                "WatchMagY": [],
+                "WatchMagZ": [],
+            
+                "PhoneTimes": [],
+                "WatchTimes": []
+            };
 
             streaks.push(i-last); // will usually be around the threshold
 
             last = i;
         }
+
+        newdict.PhoneTimes.push(sampleDict.PhoneTimes[i]);
+        newdict.WatchTimes.push(sampleDict.WatchTimes[i]);
 
         newdict.PhoneAccelX.push(sampleDict.PhoneAccelX[i]);
         newdict.PhoneAccelY.push(sampleDict.PhoneAccelY[i]);
@@ -819,6 +908,40 @@ function splitdata(){
         newdict.PhoneMagX.push(sampleDict.PhoneMagX[i]);
         newdict.PhoneMagY.push(sampleDict.PhoneMagY[i]);
         newdict.PhoneMagZ.push(sampleDict.PhoneMagZ[i]);
+
+        newdict.WatchAccelX.push(sampleDict.WatchAccelX[i]);
+        newdict.WatchAccelY.push(sampleDict.WatchAccelY[i]);
+        newdict.WatchAccelZ.push(sampleDict.WatchAccelZ[i]);
+        newdict.WatchGyroX.push(sampleDict.WatchGyroX[i]);
+        newdict.WatchGyroY.push(sampleDict.WatchGyroY[i]);
+        newdict.WatchGyroZ.push(sampleDict.WatchGyroZ[i]);
+        newdict.WatchMagX.push(sampleDict.WatchMagX[i]);
+        newdict.WatchMagY.push(sampleDict.WatchMagY[i]);
+        newdict.WatchMagZ.push(sampleDict.WatchMagZ[i]);
+
+        currentstroke.PhoneTimes.push(sampleDict.PhoneTimes[i]);
+        currentstroke.WatchTimes.push(sampleDict.WatchTimes[i]);
+
+        currentstroke.PhoneAccelX.push(sampleDict.PhoneAccelX[i]);
+        currentstroke.PhoneAccelY.push(sampleDict.PhoneAccelY[i]);
+        currentstroke.PhoneAccelZ.push(sampleDict.PhoneAccelZ[i]);
+        currentstroke.PhoneGyroX.push(sampleDict.PhoneGyroX[i]);
+        currentstroke.PhoneGyroY.push(sampleDict.PhoneGyroY[i]);
+        currentstroke.PhoneGyroZ.push(sampleDict.PhoneGyroZ[i]);
+        currentstroke.PhoneMagX.push(sampleDict.PhoneMagX[i]);
+        currentstroke.PhoneMagY.push(sampleDict.PhoneMagY[i]);
+        currentstroke.PhoneMagZ.push(sampleDict.PhoneMagZ[i]);
+
+        currentstroke.WatchAccelX.push(sampleDict.WatchAccelX[i]);
+        currentstroke.WatchAccelY.push(sampleDict.WatchAccelY[i]);
+        currentstroke.WatchAccelZ.push(sampleDict.WatchAccelZ[i]);
+        currentstroke.WatchGyroX.push(sampleDict.WatchGyroX[i]);
+        currentstroke.WatchGyroY.push(sampleDict.WatchGyroY[i]);
+        currentstroke.WatchGyroZ.push(sampleDict.WatchGyroZ[i]);
+        currentstroke.WatchMagX.push(sampleDict.WatchMagX[i]);
+        currentstroke.WatchMagY.push(sampleDict.WatchMagY[i]);
+        currentstroke.WatchMagZ.push(sampleDict.WatchMagZ[i]);
+
         i += 1;
     }
 
@@ -843,7 +966,7 @@ function splitdata(){
     let currentlen = 0;
     i = 0;
     while (i < differences.length){
-        if (differences[i] < 60 && differences[i] > -60){
+        if (differences[i] < 70 && differences[i] > -70){
             // within regulation, len goes up
             currentlen += 1;
         } else {
@@ -875,6 +998,8 @@ function splitdata(){
     // now create the data to plot
     // do it again, but this time dont push it if its not in the range
 
+    sendData = newdict;
+
 
     newdict = {
         "PhoneAccelX": [],
@@ -885,7 +1010,20 @@ function splitdata(){
         "PhoneGyroZ": [],
         "PhoneMagX": [],
         "PhoneMagY": [],
-        "PhoneMagZ": []
+        "PhoneMagZ": [],
+    
+        "WatchAccelX": [],
+        "WatchAccelY": [],
+        "WatchAccelZ": [],
+        "WatchGyroX": [],
+        "WatchGyroY": [],
+        "WatchGyroZ": [],
+        "WatchMagX": [],
+        "WatchMagY": [],
+        "WatchMagZ": [],
+    
+        "PhoneTimes": [],
+        "WatchTimes": [],
     };
 
     i = 0;
@@ -895,10 +1033,13 @@ function splitdata(){
     while (i < sampleDict.PhoneAccelX.length){
         let subj = sampleDict.PhoneGyroX[i];
 
-        if (i != sampleDict.PhoneGyroX.length-1 && subj > sampleDict.PhoneGyroX[i+1] && i-last > 100 && subj > 0.8){
+        if (i < sampleDict.PhoneGyroX.length-4 && subj > sampleDict.PhoneGyroX[i+1] && sampleDict.PhoneGyroX[i+1] > sampleDict.PhoneGyroX[i+2] && sampleDict.PhoneGyroX[i+3] > sampleDict.PhoneGyroX[i+4] && i-last > 100 && subj > 0.8){
             //insert spaces
             let j = 0;
             while (j < 100 && strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
+                newdict.PhoneTimes.push(null);
+                newdict.WatchTimes.push(null);
+
                 newdict.PhoneAccelX.push(null);
                 newdict.PhoneAccelY.push(null);
                 newdict.PhoneAccelZ.push(null);
@@ -908,6 +1049,16 @@ function splitdata(){
                 newdict.PhoneMagX.push(null);
                 newdict.PhoneMagY.push(null);
                 newdict.PhoneMagZ.push(null);
+
+                newdict.WatchAccelX.push(null);
+                newdict.WatchAccelY.push(null);
+                newdict.WatchAccelZ.push(null);
+                newdict.WatchGyroX.push(null);
+                newdict.WatchGyroY.push(null);
+                newdict.WatchGyroZ.push(null);
+                newdict.WatchMagX.push(null);
+                newdict.WatchMagY.push(null);
+                newdict.WatchMagZ.push(null);
                 j += 1;
             }
 
@@ -919,7 +1070,9 @@ function splitdata(){
         }
 
         if (strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
-
+            newdict.PhoneTimes.push(sampleDict.PhoneTimes[i]);
+            newdict.WatchTimes.push(sampleDict.WatchTimes[i]);
+    
             newdict.PhoneAccelX.push(sampleDict.PhoneAccelX[i]);
             newdict.PhoneAccelY.push(sampleDict.PhoneAccelY[i]);
             newdict.PhoneAccelZ.push(sampleDict.PhoneAccelZ[i]);
@@ -929,22 +1082,54 @@ function splitdata(){
             newdict.PhoneMagX.push(sampleDict.PhoneMagX[i]);
             newdict.PhoneMagY.push(sampleDict.PhoneMagY[i]);
             newdict.PhoneMagZ.push(sampleDict.PhoneMagZ[i]);
-
+    
+            newdict.WatchAccelX.push(sampleDict.WatchAccelX[i]);
+            newdict.WatchAccelY.push(sampleDict.WatchAccelY[i]);
+            newdict.WatchAccelZ.push(sampleDict.WatchAccelZ[i]);
+            newdict.WatchGyroX.push(sampleDict.WatchGyroX[i]);
+            newdict.WatchGyroY.push(sampleDict.WatchGyroY[i]);
+            newdict.WatchGyroZ.push(sampleDict.WatchGyroZ[i]);
+            newdict.WatchMagX.push(sampleDict.WatchMagX[i]);
+            newdict.WatchMagY.push(sampleDict.WatchMagY[i]);
+            newdict.WatchMagZ.push(sampleDict.WatchMagZ[i]);
         }
 
 
         i += 1;
     }
 
-    sampleDict.PhoneAccelX = newdict.PhoneAccelX;
-    sampleDict.PhoneAccelY = newdict.PhoneAccelY;
-    sampleDict.PhoneAccelZ = newdict.PhoneAccelZ;
-    sampleDict.PhoneGyroX = newdict.PhoneGyroX;
-    sampleDict.PhoneGyroY = newdict.PhoneGyroY;
-    sampleDict.PhoneGyroZ = newdict.PhoneGyroZ;
-    sampleDict.PhoneMagX = newdict.PhoneMagX;
-    sampleDict.PhoneMagY = newdict.PhoneMagY;
-    sampleDict.PhoneMagZ = newdict.PhoneMagZ;
+    sampleDict = newdict;
+
+
+    // now process senddata, split into strokes and call the model for each one
+    // not too hard
+    // make an array of strokes
+    let strokearray = [];
+    // only take the ones that were approved by the automation
+    console.log(starts);
+    console.log(lns);
+
+    console.log(strokearr);
+
+    // send any set of strokes larger than 2 for evaluation
+
+    i = 0;
+    while (i < starts.length){
+        if (lns[i] > 2){
+            // actually do the thing
+
+            let j = starts[i];
+            while (j < starts[i]+lns[i]){
+                strokearray.push(strokearr[j]);
+                j += 1;
+            }
+        }
+        // else skip over it
+        i += 1;
+    }
+
+    sendData = strokearray;
+
 }
 
 function setplotparams(arr){
@@ -1065,9 +1250,11 @@ let sampleDict = {
     "WatchMagZ": [],
 
     "PhoneTimes": [],
-    "WatchTimes": []
+    "WatchTimes": [],
 };
 
+
+let sendData;
 
 fetchCSV('https://concretecanoe.skparab1.com/web/assets/Anthony_Optimal_Split_Forweb.csv');
 
