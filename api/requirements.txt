@@ -1,0 +1,4 @@
+Flask==3.0.3
+gunicorn==23.0.0
+scikit-learn==1.6.1
+Flask-Cors==5.0.0 
