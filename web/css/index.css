@@ -954,7 +954,7 @@ input[type="file"] {
 }
 
 .fullheightbox{
-  height: 80vh;
+  height: 90vh;
   width: 90%;
   margin-left: 5%;
   border: 3px solid var(--main);
@@ -977,4 +977,56 @@ input[type="file"] {
   color: white;
   border-radius: 10px;
   border: 3px solid var(--main);
+}
+
+.loadinganim {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.flexrow {
+  display: flex;
+  flex-direction: row;
+}
+
+.loadingpoint {
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+
+  background-color: var(--main);
+}
+
+.piechart {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-image: conic-gradient(
+      pink 70deg,
+      lightblue 0 235deg,
+      orange 0
+  );
+
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.pielegend {
+  text-align: center;
+  margin: 15px;
+  margin-left: 33%;
+  width: 33%;
+  display: flex;
+  flex-direction: row;
+  background-color: var(--bgslight);
+}
+
+.key {
+  width: 30px;
+  height: 30px;
+  margin: 15px;
 }

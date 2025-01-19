@@ -1,5 +1,3 @@
-
-
 let tickYarr = [];
 let tickXarr = [];
 let pointsarr = [];
@@ -692,8 +690,12 @@ while (i < 3){
 }
 
 
-function splitdata(){
+async function splitdata(){
     // this splits sampleDict
+
+    loadingmotion();
+
+    analysisdisplay.innerHTML = "<h2>Splitting strokes...</h2>"
 
     let newdict = {
         "PhoneAccelX": [],
@@ -945,6 +947,11 @@ function splitdata(){
         i += 1;
     }
 
+    analysisdisplay.innerHTML = `
+    <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
+    <h2>Analyzing strokes for consistency...</h2>`;
+
+
     console.log(streaks);
 
     // noew find out the differences
@@ -1120,7 +1127,9 @@ function splitdata(){
 
             let j = starts[i];
             while (j < starts[i]+lns[i]){
-                strokearray.push(strokearr[j]);
+                if (strokearr[j].PhoneAccelX.length >= 155){
+                    strokearray.push(strokearr[j]);
+                }
                 j += 1;
             }
         }
@@ -1128,7 +1137,198 @@ function splitdata(){
         i += 1;
     }
 
+
+    analysisdisplay.innerHTML = `
+    <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
+    <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>
+    <h2>Analyzing stroke 0 of ${strokearray.length}</h2>`;
+
     sendData = strokearray;
+
+    i = 0;
+    while (i < sendData.length){
+        
+        await getPrediction(i);
+
+        let good = countgood();
+
+        analysisdisplay.innerHTML = `
+        <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
+        <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>
+
+        <h2>Analyzing stroke ${i} of ${strokearray.length}</h2>
+        <div class="piechart" style="background-image: conic-gradient(
+            green ${good/predictions.length*360}deg,
+            lightblue ${(1-good/predictions.length)*360}deg
+        );"></div>
+        <div class="pielegend">
+            <div class="key" style="background-color: green;"></div>
+            <h3 style='color: green;'>Optimal strokes (${good})</h2>
+        </div>
+        <div class="pielegend">
+            <div class="key" style="background-color: red;"></div>
+            <h3 style='color: red;'>Inoptimal strokes (${predictions.length-good})</h2>
+        </div>
+        `;   
+
+        i += 1;
+    }
+
+    loadingmotionon = false;
+
+    let good = countgood();
+
+    analysisdisplay.innerHTML = `
+        <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
+        <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>
+
+        <h2 style='color: var(--main);'>Optimal stroke percentage: ${good/predictions.length*360}%</h2>
+        <div class="piechart" style="background-image: conic-gradient(
+            green ${good/predictions.length*360}deg,
+            lightblue ${(1-good/predictions.length)*360}deg
+        );"></div>
+        <div class="pielegend">
+            <div class="key" style="background-color: green;"></div>
+            <h3 style='color: green;'>Optimal strokes (${good})</h2>
+            <div class="key" style="background-color: red;"></div>
+            <h3 style='color: red;'>Inoptimal strokes (${predictions.length-good})</h2>
+        </div>
+        `;   
+
+    document.getElementById("loadinganim").style.display = "none";
+
+}
+
+function countgood(){
+    let i = 0;
+    let count = 0;
+    while (i < predictions.length){
+        if (predictions[i] == 1){
+            count += 1;
+        }
+        i += 1;
+    }
+
+    return count;
+}
+
+function getStrokeToSend(num){
+    let stroke = sendData[num];
+
+    let str = "";
+
+    let features = ["PhoneAccelX","PhoneAccelY","PhoneAccelZ","PhoneGyroX","PhoneGyroY","PhoneGyroZ","PhoneMagX","PhoneMagY","PhoneMagZ","WatchAccelX","WatchAccelY","WatchAccelZ","WatchGyroX","WatchGyroY","WatchGyroZ","WatchMagX","WatchMagY","WatchMagZ"];
+
+    let i = 0;
+    while (i < features.length){
+        let carr = stroke[features[i]];
+        let currentstring = "";
+
+        if (i != 0){
+            str += "&"+features[i]+"=";
+        } else {
+            str += features[i]+"=";
+        }
+
+        let j = 0;
+        while (j < carr.length){
+            currentstring += String(carr[j].toFixed(2));
+
+            if (j != carr.length-1){
+                currentstring += ",";
+            }
+
+            j += 1;
+        }
+
+        str += currentstring;
+        
+
+        i += 1;
+    }
+
+    return str;
+}
+
+async function getPrediction(num){
+    let strokestr = getStrokeToSend(num);
+
+    let url = "https://predictor-vu7p.onrender.com/predict?"+strokestr;
+
+    console.log(url)
+
+    await fetch((url))
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        console.log(parseInt(data.prediction));
+        predictions.push(parseInt(data.prediction));
+    })
+}
+
+let loadingmotionon = true;
+
+let load1 = document.getElementById("loadingpoint1");
+let load2 = document.getElementById("loadingpoint2");
+let load3 = document.getElementById("loadingpoint3");
+let load4 = document.getElementById("loadingpoint4");
+let load6 = document.getElementById("loadingpoint5");
+let load5 = document.getElementById("loadingpoint6");
+let load7 = document.getElementById("loadingpoint7");
+let load8 = document.getElementById("loadingpoint8");
+
+function zeroify(x){
+    if (x > 0){
+        return 0;
+    } else {
+        return x;
+    }
+}
+
+// but you never want to await this, its never gonna end
+async function loadingmotion(){
+    loadingdegree = 0;
+    while (loadingmotionon){
+        load1.style.opacity = (255-Math.abs(100-loadingdegree))/255;
+        load3.style.opacity = (255-Math.abs(200-loadingdegree))/255;
+        load6.style.opacity = (255-Math.abs(300-loadingdegree))/255;
+        load7.style.opacity = (255-Math.abs(400-loadingdegree))/255;
+        load8.style.opacity = (255-Math.abs(500-loadingdegree))/255;
+        load5.style.opacity = (255-Math.abs(600-loadingdegree))/255;
+        load4.style.opacity = (255-Math.abs(700-loadingdegree))/255;
+        load2.style.opacity = (255-Math.abs(800-loadingdegree))/255;
+        loadingdegree += 3;
+
+    
+        if (loadingdegree < 300){
+            load5.style.opacity = (255-Math.abs(-200-loadingdegree))/255;
+            load4.style.opacity = (255-Math.abs(-100-loadingdegree))/255;
+            load2.style.opacity = (255-Math.abs(0-loadingdegree))/255;
+        }
+
+        if (loadingdegree > 500){
+            load1.style.opacity = (255-Math.abs(900-loadingdegree))/255;
+            load3.style.opacity = (255-Math.abs(1000-loadingdegree))/255;
+            load6.style.opacity = (255-Math.abs(1100-loadingdegree))/255;
+        }
+        // if (loadingdegree > 250){
+        //     load1.style.opacity = 1-(zeroify(loadingdegree-0)/90);
+        //     load3.style.opacity = 1-(zeroify(loadingdegree-45)/90);
+        //     load6.style.opacity = 1-(zeroify(loadingdegree-90)/90);
+        //     load7.style.opacity = 1-(zeroify(loadingdegree-135)/90); 
+        // }
+
+        if (loadingdegree > 800){
+            loadingdegree = 0;
+        }
+        await sleep();
+    }
+}
+
+async function sendToModel(){
+    // first let them know how many strokes have been found
 
 }
 
@@ -1254,6 +1454,7 @@ let sampleDict = {
 };
 
 
+let predictions = [];
 let sendData;
 
 fetchCSV('https://concretecanoe.skparab1.com/web/assets/Anthony_Optimal_Split_Forweb.csv');
