@@ -1420,6 +1420,7 @@ function plotOptimalFeature(feature){
     predraw(feature);
     plotgraph.innerHTML += graphString(optimaldata, feature);
 
+    
     predrawsecond(feature);
     plotgraph2.innerHTML += graphString(sampleDict, feature);
 
@@ -1476,7 +1477,7 @@ let sampleDict = {
 let predictions = [];
 let sendData;
 
-fetchCSV('https://concretecanoe.skparab1.com/web/assets/Anthony_Optimal_Split_Forweb.csv');
+fetchCSV('https://concretecanoe.skparab1.com/assets/Anthony_Optimal_Split_Forweb.csv');
 
 // load the settings from localstorage
 let theme = localStorage.getItem('bttheme');
