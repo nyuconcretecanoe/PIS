@@ -531,9 +531,9 @@ function makedict(datastr, type){
         let line = spltup[i].split(',');
         enddict.time.push(parseInt(line[0]));
         enddict.seconds_elapsed.push(parseInt(line[1]));
-        enddict.x.push(parseFloat(line[2]));
+        enddict.x.push(parseFloat(line[4]));
         enddict.y.push(parseFloat(line[3]));
-        enddict.z.push(parseFloat(line[4]));
+        enddict.z.push(parseFloat(line[2]));
         i += 1;
     }
 
@@ -723,6 +723,9 @@ async function splitdata(){
     };
 
 
+    console.log("TELLER BEFORE:",sampleDict.PhoneAccelX);
+
+
     // one thing to take into account
     // is the phone aligned with the watch
     // if not, we need to align it
@@ -794,6 +797,9 @@ async function splitdata(){
         sampleDict.PhoneMagY = sampleDict.PhoneMagY.slice(pindex);
         sampleDict.PhoneMagZ = sampleDict.PhoneMagZ.slice(pindex);
     }
+
+
+    console.log("TELLER:",sampleDict.PhoneAccelX);
 
     
 
@@ -898,6 +904,8 @@ async function splitdata(){
             last = i;
         }
 
+
+
         newdict.PhoneTimes.push(sampleDict.PhoneTimes[i]);
         newdict.WatchTimes.push(sampleDict.WatchTimes[i]);
 
@@ -985,6 +993,15 @@ async function splitdata(){
             currentstart = i+1;
         }
 
+        // check if thats the end
+        if (i == differences.length-1){
+            lns.push(currentlen);
+            starts.push(currentstart);
+    
+            currentlen = 0;
+            currentstart = i+1;
+        }
+
         i += 1;
     }
 
@@ -1037,7 +1054,7 @@ async function splitdata(){
     last = 0;
     let strokesgone = 0;
 
-    while (i < sampleDict.PhoneAccelX.length){
+    while (i < sampleDict.PhoneAccelX.length && i < sampleDict.WatchAccelX.length){
         let subj = sampleDict.PhoneGyroX[i];
 
         if (i < sampleDict.PhoneGyroX.length-4 && subj > sampleDict.PhoneGyroX[i+1] && sampleDict.PhoneGyroX[i+1] > sampleDict.PhoneGyroX[i+2] && sampleDict.PhoneGyroX[i+3] > sampleDict.PhoneGyroX[i+4] && i-last > 100 && subj > 0.8){
@@ -1159,7 +1176,7 @@ async function splitdata(){
         <h2>Analyzing stroke ${i} of ${strokearray.length}</h2>
         <div class="piechart" style="background-image: conic-gradient(
             green ${good/predictions.length*360}deg,
-            lightblue ${(1-good/predictions.length)*360}deg
+            red 0 ${(1-good/predictions.length)*360}deg
         );"></div>
         <div class="pielegend">
             <div class="key" style="background-color: green;"></div>
@@ -1182,14 +1199,16 @@ async function splitdata(){
         <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
         <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>
 
-        <h2 style='color: var(--main);'>Optimal stroke percentage: ${good/predictions.length*360}%</h2>
+        <h2 style='color: var(--main);'>Optimal stroke percentage: ${100*good/predictions.length}%</h2>
         <div class="piechart" style="background-image: conic-gradient(
             green ${good/predictions.length*360}deg,
-            lightblue ${(1-good/predictions.length)*360}deg
+            red 0 ${(1-good/predictions.length)*360}deg
         );"></div>
         <div class="pielegend">
             <div class="key" style="background-color: green;"></div>
             <h3 style='color: green;'>Optimal strokes (${good})</h2>
+        </div>
+        <div class="pielegend">
             <div class="key" style="background-color: red;"></div>
             <h3 style='color: red;'>Inoptimal strokes (${predictions.length-good})</h2>
         </div>
@@ -1203,7 +1222,7 @@ function countgood(){
     let i = 0;
     let count = 0;
     while (i < predictions.length){
-        if (predictions[i] == 1){
+        if (predictions[i] == 0){
             count += 1;
         }
         i += 1;
