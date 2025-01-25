@@ -36,17 +36,34 @@
         <div class="halfleft" id="upload1holder">
 
           <label for="file-upload1" id="upload1" class="custom-file-upload">
-            <div class="upload-text">Upload 3 CSVs for Phone Data</div>
+            <div class="upload-text">Upload 3 CSVs for Phone</div>
           </label>
           <input id="file-upload1" type="file" accept=".csv" multiple/>  
         </div>
         <div class="halfleft" id="upload2holder">
           <label for="file-upload2" id="upload2" class="custom-file-upload">
-            <div class="upload-text">Upload 3 CSVs for Watch Data</div>
+            <div class="upload-text" id="uploadtext2">Upload 1 CSV for Left Watch</div>
           </label>
           <input id="file-upload2" type="file" accept=".csv" multiple/>  
         </div>
       </div>
+
+      <div class="fullwidth">
+        <div class="halfleft" style="margin-left: 25%;" id="upload3holder">
+          <label for="file-upload3" id="upload3" class="custom-file-upload">
+            <div class="upload-text" id="uploadtext3">Upload 1 CSV for Right Watch</div>
+          </label>
+          <input id="file-upload3" type="file" accept=".csv" multiple/>  
+        </div>
+      </div>
+<!-- 
+      <div class="fullwidth">
+        <h2 id="filetype">3 Files (Sensor Logger)</h2>
+        <label class="switch">
+          <input id="filetypecheck" type="checkbox" onchange="togglefiletype();">
+          <span class="slider round"></span>
+        </label>
+      </div> -->
 
       <button class="coolbutton" id="coolbutton" onclick="switchscreens();">Analyze</button>
 
