@@ -1002,17 +1002,20 @@ input[type="file"] {
 }
 
 .piechart {
-  width: 200px;
-  height: 200px;
+  width: 25%;
+  aspect-ratio: 1/1;
   border-radius: 50%;
   background-image: conic-gradient(
       pink 70deg,
       lightblue 0 235deg,
       orange 0
   );
-
-  margin-left: 50%;
-  transform: translateX(-50%);
+  margin-top: 100px;
+  margin-left: 4.16%;
+  margin-right: 4.16%;
+  float: left;
+  overflow-y: visible;
+  /* transform: translateX(-50%); */
 }
 
 .pielegend {
