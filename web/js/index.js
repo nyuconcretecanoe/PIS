@@ -354,46 +354,20 @@ function monitorChange(x,y){
 
 
 function predraw(feature){
-    console.log('feature',feature);
+    console.log('feature PLOTTT',feature);
 
     let label;
 
-    if (feature == "PhoneAccelX"){
-        tickYbasis = -1.25;
-        tickYincrement = 0.25;
+    [tickYbasis, tickYincrement] = setplotparams(optimaldata[feature]);
+
+    if (feature.includes("Accel")){
         label = "m/s²";
-    } else if (feature == "PhoneAccelY"){
-        tickYbasis = 0;
-        tickYincrement = 0.25;
-        label = "m/s²";
-    } else if (feature == "PhoneAccelZ"){
-        tickYbasis = -0.7;
-        tickYincrement = 0.25;
-        label = "m/s²";
-    } else if (feature == "PhoneGyroX"){
-        tickYbasis = -2;
-        tickYincrement = 1;        
+    } else if (feature.includes("Gyro") || feature.includes("Roll") || feature.includes("Pitch") || feature.includes("Yaw") || feature.includes("Rot")){
         label = "rad/s";
-    } else if (feature == "PhoneGyroY"){
-        tickYbasis = -2;
-        tickYincrement = 1;
+    } else if (feature.includes("Mag") || feature.includes("Grav")){
         label = "μT";
-    } else if (feature == "PhoneGyroZ"){
-        tickYbasis = -2;
-        tickYincrement = 1;
-        label = "μT";
-    } else if (feature == "PhoneMagX"){
-        tickYbasis = -140;
-        tickYincrement = 10;
-        label = "μT";
-    } else if (feature == "PhoneMagY"){
-        tickYbasis = -60;
-        tickYincrement = 10;
-        label = "μT";
-    } else if (feature == "PhoneMagZ"){
-        tickYbasis = -320;
-        tickYincrement = 10;
-        label = "μT";
+    } else {
+        label = "units";
     }
 
     plotgraph.innerHTML = ``;
@@ -422,36 +396,18 @@ function predrawsecond(feature){
     console.log('feature',feature);
 
     let label;
+    [tickYbasis2, tickYincrement2] = setplotparams(optimaldata[feature]);
 
-    // DONT manually put these in, they should be automatically calculated after trimming and whatnot
-    if (feature == "PhoneAccelX"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneAccelX);
+    if (feature.includes("Accel")){
         label = "m/s²";
-    } else if (feature == "PhoneAccelY"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneAccelY);
-        label = "m/s²";
-    } else if (feature == "PhoneAccelZ"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneAccelZ);
-        label = "m/s²";
-    } else if (feature == "PhoneGyroX"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneGyroX);      
+    } else if (feature.includes("Gyro") || feature.includes("Roll") || feature.includes("Pitch") || feature.includes("Yaw") || feature.includes("Rot")){
         label = "rad/s";
-    } else if (feature == "PhoneGyroY"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneGyroY);
+    } else if (feature.includes("Mag") || feature.includes("Grav")){
         label = "μT";
-    } else if (feature == "PhoneGyroZ"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneGyroZ);
-        label = "μT";
-    } else if (feature == "PhoneMagX"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneMagX);
-        label = "μT";
-    } else if (feature == "PhoneMagY"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneMagY);
-        label = "μT";
-    } else if (feature == "PhoneMagZ"){
-        [tickYbasis2, tickYincrement2] = setplotparams(sampleDict.PhoneMagZ);
-        label = "μT";
+    } else {
+        label = "units";
     }
+
 
     plotgraph2.innerHTML = ``;
   
@@ -847,20 +803,107 @@ function addReading(newDict, oldDict, pindex, wlindex, wrindex){
             index = wrindex
         }
 
+        // console.log("feature",i);
+
         
         if (newDict[i] != null){
             if (oldDict == null){
+                // console.log("could not find feature",i, "in olddict");
                 newDict[i].push(null);
             } else {
-                newDict[i].push(oldDict[i][index]);
+                try {
+                    newDict[i] = [oldDict[i][index]];
+                } catch (e) {
+                    if (i == "PhoneTimes"){
+                        newDict["PhoneTime"] = [oldDict["PhoneTime"][index]];
+                    }
+                }
             }
         } else {
+            // console.log("could not find feature",i, "in newdict");
             if (oldDict == null){
                 newDict[i] = [null];
             } else {
-                newDict[i] = [oldDict[i][index]];
+                try {
+                    newDict[i] = [oldDict[i][index]];
+                } catch (e) {
+                    if (i == "PhoneTimes"){
+                        newDict["PhoneTime"] = [oldDict["PhoneTime"][index]];
+                    }
+                }
             }
         }
+    }
+}
+
+
+
+function addReadingPush(newDict, oldDict, pindex, wlindex, wrindex){
+    let attributes = ["PhoneAccelX", "PhoneAccelY", "PhoneAccelZ", "PhoneGyroX",
+        "PhoneGyroY", "PhoneGyroZ", "PhoneMagX", "PhoneMagY", "PhoneMagZ", 
+        "LeftWatchRoll", "LeftWatchPitch", "LeftWatchYaw","LeftWatchRotX", 
+        "LeftWatchRotY", "LeftWatchRotZ", "LeftWatchGravX", "LeftWatchGravY", "LeftWatchGravZ", 
+        "LeftWatchDMUAccelX", "LeftWatchDMUAccelY", "LeftWatchDMUAccelZ", "LeftWatchQuatW",
+        "LeftWatchQuatX", "LeftWatchQuatY", "LeftWatchQuatZ", "LeftWatchAccelX",
+        "LeftWatchAccelY", "LeftWatchAccelZ", "RightWatchRoll", 
+        "RightWatchPitch", "RightWatchYaw", "RightWatchRotX", 
+        "RightWatchRotY", "RightWatchRotZ", "RightWatchGravX", "RightWatchGravY",
+        "RightWatchGravZ", "RightWatchDMUAccelX", "RightWatchDMUAccelY", "RightWatchDMUAccelZ",
+        "RightWatchQuatW", "RightWatchQuatX", "RightWatchQuatY", "RightWatchQuatZ",
+        "RightWatchAccelX", "RightWatchAccelY", "RightWatchAccelZ"];
+        
+    for (const i of attributes){
+        let index = "";
+        if (i.includes("Phone")){
+            index = pindex
+        } else if (i.includes("LeftWatch")){
+            index = wlindex
+        } else {
+            index = wrindex
+        }
+
+        // console.log("feature",i);
+        if (newDict[i] == null){
+            newDict[i] = [];
+        }
+
+        if (oldDict == null){
+            newDict[i].push(null);
+        } else {
+            if (oldDict[i] == null){
+                newDict[i].push(null);
+            }
+            newDict[i].push(oldDict[i][index]);
+        }        
+
+        
+        // 
+        //     if (oldDict == null){
+        //         // console.log("could not find feature",i, "in olddict");
+        //         newDict[i].push(null);
+        //     } else {
+        //         try {
+        //             newDict[i] = [oldDict[i][index]];
+        //         } catch (e) {
+        //             if (i == "PhoneTimes"){
+        //                 newDict["PhoneTime"] = [oldDict["PhoneTime"][index]];
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     // console.log("could not find feature",i, "in newdict");
+        //     if (oldDict == null){
+        //         newDict[i] = [null];
+        //     } else {
+        //         try {
+        //             newDict[i] = [oldDict[i][index]];
+        //         } catch (e) {
+        //             if (i == "PhoneTimes"){
+        //                 newDict["PhoneTime"] = [oldDict["PhoneTime"][index]];
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -958,7 +1001,7 @@ function splitIntoParts(currentDict){
         }
     
     
-        addReading(currentstroke, currentDict, i, i, i);
+        addReadingPush(currentstroke, currentDict, i, i, i);
 
         i += 1;
         last = i;
@@ -1194,7 +1237,7 @@ async function splitdata(){
 
         // if (i-last < 155){
             
-            addReading(currentstroke, sampleDict, pstart, wlstart, wrstart);
+        addReadingPush(currentstroke, sampleDict, pstart, wlstart, wrstart);
 
         // }
 
@@ -1271,6 +1314,11 @@ async function splitdata(){
     let takestartindex = starts[mxlenind];
     let takelen = Math.min(mxlen, 8);
 
+    if (mxlen > 8){
+        // move to the middle
+        takestartindex += (mxlen-8)/2;
+    }
+
     console.log(takestartindex);
     console.log(takelen);
 
@@ -1297,7 +1345,7 @@ async function splitdata(){
             let j = 0;
             while (j < 100 && strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
                 
-                addReading(newdict, null, pstart, wlstart, wrstart);
+                addReadingPush(newdict, null, pstart, wlstart, wrstart);
 
                 j += 1;
             }
@@ -1310,7 +1358,7 @@ async function splitdata(){
         }
 
         if (strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
-            addReading(newdict, sampleDict, pstart, wlstart, wrstart);
+            addReadingPush(newdict, sampleDict, pstart, wlstart, wrstart);
         }
 
 
@@ -1359,8 +1407,7 @@ async function splitdata(){
 
     analysisdisplay.innerHTML = `
     <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
-    <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>
-    <h2>Analyzing stroke 0 of ${strokearray.length}</h2>`;
+    <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>`;
 
     sendData = strokearray;
 
@@ -1395,6 +1442,8 @@ async function splitdata(){
 
         i += 1;
     }
+
+    displayPie(strokearr, strokearray, i);
 }
 
 function getGoodPercentage(part){
@@ -1406,11 +1455,11 @@ function getGoodPercentage(part){
 }
 
 
-function displayPie(strokearr, strokearray, i){
+function displayPie(strokearr, strokearray, i, forcedone=false){
 
     let adden = ``;
-    if (strokearray.length-5 != i){
-        adden = `<h2 style='color: var(--main);'>Analyzing stroke ${i} of ${strokearray.length-5}</h2>`;
+    if (strokearray.length-5 != i || forcedone){
+        // adden = `<h2 style='color: var(--main);'>Analyzing stroke ${i} of ${strokearray.length-5}</h2>`;
         document.getElementById("loadinganim").style.display = "none";
         loadingmotionon = false;
     }
@@ -1426,7 +1475,7 @@ function displayPie(strokearr, strokearray, i){
         red 0 ${(1-getGoodPercentage('catch'))*360}deg
     );">
         <h2 style='margin-top: -85px;'>Catch</h2>
-        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('catch')*100)}% Optimal</h2>
+        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('catch')*100)}% Optimal (${countgood('catch')}/${predictions['catch'].length})</h2>
     </div>
 
     <div class="piechart" style="background-image: conic-gradient(
@@ -1434,7 +1483,7 @@ function displayPie(strokearr, strokearray, i){
         red 0 ${(1-getGoodPercentage('pull'))*360}deg
     );">
         <h2 style='margin-top: -85px;'>Pull</h2>
-        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('pull')*100)}% Optimal</h2>
+        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('pull')*100)}% Optimal (${countgood('pull')}/${predictions['pull'].length})</h2>
     </div>
 
     <div class="piechart" style="background-image: conic-gradient(
@@ -1442,7 +1491,7 @@ function displayPie(strokearr, strokearray, i){
         red 0 ${(1-getGoodPercentage('recovery'))*360}deg
     );">
         <h2 style='margin-top: -85px;'>Recovery</h2>
-        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('recovery')*100)}% Optimal</h2>
+        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('recovery')*100)}% Optimal (${countgood('recovery')}/${predictions['recovery'].length})</h2>
     </div>
 
     <div class="pielegend" style="padding-top: 45px;">
@@ -1632,7 +1681,7 @@ function setplotparams(arr){
 
     let diff = mx - mn;
 
-    return [mn,diff/4];
+    return [mn-diff/4, diff/3];
 }
 
 
@@ -1642,44 +1691,278 @@ initDraw();
 
 
 
+async function splitDataOptimal(){
+    let streaks = [];
+
+    let strokearr = [];
+
+    let currentstroke = {};
+
+
+    let i = 0;
+    let last = 0;
+    while (i < optimaldata["PhoneAccelX"].length && i < optimaldata["LeftWatchRoll"].length
+          && i < optimaldata["RightWatchRoll"].length){
+
+        if (continuouslyupwards(optimaldata["LeftWatchQuatX"], i, 20)
+            && i-last > 150){
+
+
+            strokearr.push(currentstroke);
+
+            currentstroke = {}
+
+            streaks.push(i-last); // will usually be around the threshold
+
+            last = i;
+        }
+
+        // if (i-last < 155){
+            
+        addReading(currentstroke, optimaldata, i, i, i);
+
+        // }
+
+        i += 1;
+    }
+
+
+    console.log(streaks);
+
+    // noew find out the differences
+    let differences = [];
+    i = 1;
+    while (i < streaks.length){
+        differences.push(streaks[i]-streaks[i-1]);
+        i += 1
+    }
+
+    console.log(differences);
+
+
+    // now i want to find the longest streak for which the absolute value of difference is less than 60
+    let starts = [];
+    let lns = [];
+
+    let currentstart = 0;
+    let currentlen = 0;
+    i = 0;
+    while (i < differences.length){
+        if (differences[i] < 70 && differences[i] > -70){
+            // within regulation, len goes up
+            currentlen += 1;
+        } else {
+            // out of regulation, cut it off
+            lns.push(currentlen);
+            starts.push(currentstart);
+
+            currentlen = 0;
+            currentstart = i+1;
+        }
+
+        // check if thats the end
+        if (i == differences.length-1){
+            lns.push(currentlen);
+            starts.push(currentstart);
+    
+            currentlen = 0;
+            currentstart = i+1;
+        }
+
+        i += 1;
+    }
+
+    console.log(starts);
+    console.log(lns);
+
+    // lets look at the max length
+    let mxlen = lns.reduce((a, b) => Math.max(a, b), -Infinity);
+    let mxlenind = lns.indexOf(mxlen);
+
+    let takestartindex = starts[mxlenind];
+    let takelen = Math.min(mxlen, 8);
+
+    console.log(takestartindex);
+    console.log(takelen);
+
+
+    // now create the data to plot
+    // do it again, but this time dont push it if its not in the range
+
+    console.log("optimaldict RIGHT BEFORE", optimaldata);
+
+    newdict = {};
+
+    i = 0;
+    last = 0;
+    let strokenumber = 0;
+    while (i < optimaldata["PhoneAccelX"].length && i < optimaldata["LeftWatchRoll"].length
+          && i < optimaldata["RightWatchRoll"].length){
+
+        if (continuouslyupwards(optimaldata["LeftWatchQuatX"], i, 20)
+            && i-last > 150){
+
+            console.log("at a stroke to push, strokenumber:", strokenumber);
+            // strokearr.push(currentstroke);
+
+            // currentstroke = {}
+
+            let b = 0;
+            while (b < 100 && strokenumber >= takestartindex && strokenumber < takestartindex+takelen){
+                addReadingPush(newdict, null, i, i, i);
+                b += 1;
+            }
+
+            strokenumber += 1;
+
+            // streaks.push(i-last); // will usually be around the threshold
+
+            last = i;
+        }
+
+        // if (i-last < 155){
+
+        if (strokenumber >= takestartindex && strokenumber < takestartindex+takelen){
+            
+            addReadingPush(newdict, optimaldata, i, i, i);
+
+        }
+        // console.log("right after", newdict);
+
+        // }
+
+        i += 1;
+    }
+
+    optimaldata = newdict;
+
+
+    // // now process senddata, split into strokes and call the model for each one
+    // // not too hard
+    // // make an array of strokes
+    // let strokearray = [];
+    // // only take the ones that were approved by the automation
+    // console.log(starts);
+    // console.log(lns);
+
+    // console.log(strokearr);
+
+    // // send any set of strokes larger than 2 for evaluation
+
+
+
+
+    // i = 0;
+    // while (i < starts.length){
+    //     if (lns[i] > 2){
+    //         // actually do the thing
+
+    //         let j = starts[i];
+    //         while (j < starts[i]+lns[i]){
+    //             strokearray.push(strokearr[j]);
+    //             j += 1;
+    //         }
+    //     }
+    //     // else skip over it
+    //     i += 1;
+    // }
+
+    // console.log(strokearray);
+
+
+
+    // analysisdisplay.innerHTML = `
+    // <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
+    // <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>
+    // <h2>Analyzing stroke 0 of ${strokearray.length}</h2>`;
+
+    // sendData = strokearray;
+
+    // console.log("SAMPLER2 len", sendData[0]["LeftWatchAccelX"].length);
+    // console.log("Sampler 2 phone", sendData[0]["PhoneAccelX"])
+    // console.log("Sampler 2 leftwatch", sendData[0]["LeftWatchAccelX"])
+    // console.log("Sampler 2 rightwatch", sendData[0]["RightWatchAccelX"])
+
+    // i = 2;
+    // while (i < sendData.length - 2){
+
+    //     let spr = splitIntoParts(strokearray[i]);
+
+    //     // console.log("First spliFt PL", spr);
+
+    //     if (spr.length == 3 && Object.keys(spr[0]).length != 0 && Object.keys(spr[1]).length != 0 && Object.keys(spr[2]).length != 0){
+    //         let catchSummary = convertToSummary(spr[0]);
+    //         let pullSummary = convertToSummary(spr[1]);
+    //         let recoverySummary = convertToSummary(spr[2]);
+
+    //         console.log("catch",catchSummary);
+    //         console.log("pull",pullSummary);
+    //         console.log("recovery",recoverySummary);
+
+    //         await getPrediction("catch", catchSummary, strokearr, strokearray, i-2);
+    //         await getPrediction("pull", pullSummary, strokearr, strokearray, i-2);
+    //         await getPrediction("recovery", recoverySummary, strokearr, strokearray, i-2);
+
+
+    //     } // else just skip over it
+        
+
+    //     i += 1;
+    // }
+}
+
+
+
 function makesampledict(datastr){
     let spltup = datastr.split('\n');
 
-    let enddict = {
-        "PhoneAccelX": [],
-        "PhoneAccelY": [],
-        "PhoneAccelZ": [],
-        "PhoneGyroX": [],
-        "PhoneGyroY": [],
-        "PhoneGyroZ": [],
-        "PhoneMagX": [],
-        "PhoneMagY": [],
-        "PhoneMagZ": []
+    // console.log("SPLITUP", spltup);
+
+    enddict = {
     };
+
+    // PhoneTime,PhoneAccelZ,PhoneAccelY,PhoneAccelX,PhoneGryoZ,PhoneGyroY,PhoneGyroX,PhoneMagZ,PhoneMagY,PhoneMagX,LeftWatchTime,LeftWatchRoll,LeftWatchPitch,LeftWatchYaw,LeftWatchRotX,LeftWatchRotY,LeftWatchRotZ,LeftWatchGravX,LeftWatchGravY,LeftWatchGravZ,LeftWatchDMUAccelX,LeftWatchDMUAccelY,LeftWatchDMUAccelZ,LeftWatchQuatX,LeftWatchQuatY,LeftWatchQuatW,LeftWatchQuatZ,LeftWatchAccelX,LeftWatchAccelY,LeftWatchAccelZ,RightWatchRoll,RightWatchPitch,RightWatchYaw,RightWatchRotX,RightWatchRotY,RightWatchRotZ,RightWatchGravX,RightWatchGravY,RightWatchGravZ,RightWatchDMUAccelX,RightWatchDMUAccelY,RightWatchDMUAccelZ,RightWatchQuatX,RightWatchQuatY,RightWatchQuatW,RightWatchQuatZ,RightWatchAccelX,RightWatchAccelY,RightWatchAccelZ
+
+    let features = [
+        "PhoneTime", 
+        "PhoneAccelZ", "PhoneAccelY", "PhoneAccelX",
+        "PhoneGyroZ", "PhoneGyroY", "PhoneGyroX",
+        "PhoneMagZ", "PhoneMagY", "PhoneMagX",
+
+        "LeftWatchRoll", "LeftWatchPitch", "LeftWatchYaw",
+        "LeftWatchRotX", "LeftWatchRotY", "LeftWatchRotZ",
+        "LeftWatchGravX", "LeftWatchGravY", "LeftWatchGravZ",
+        "LeftWatchDMUAccelX", "LeftWatchDMUAccelY", "LeftWatchDMUAccelZ",
+        "LeftWatchQuatX", "LeftWatchQuatY", "LeftWatchQuatW", "LeftWatchQuatZ",
+        "LeftWatchAccelX", "LeftWatchAccelY", "LeftWatchAccelZ",
+
+        "RightWatchRoll", "RightWatchPitch", "RightWatchYaw",
+        "RightWatchRotX", "RightWatchRotY", "RightWatchRotZ",
+        "RightWatchGravX", "RightWatchGravY", "RightWatchGravZ",
+        "RightWatchDMUAccelX", "RightWatchDMUAccelY", "RightWatchDMUAccelZ",
+        "RightWatchQuatX", "RightWatchQuatY", "RightWatchQuatW", "RightWatchQuatZ",
+        "RightWatchAccelX", "RightWatchAccelY", "RightWatchAccelZ"
+    ];
 
     let i = 1;
     while (i < spltup.length){
         let line = spltup[i].split(',');
-        enddict.PhoneAccelZ.push(parseFloat(line[3]));
-        enddict.PhoneAccelY.push(parseFloat(line[4]));
-        enddict.PhoneAccelX.push(parseFloat(line[5]));
 
-        // watch features at the indices 6 7 8
+        let b = 0;
+        while (b < features.length){
+            if (enddict[features[b]] == undefined){
+                enddict[features[b]] = [];
+            }
 
-        enddict.PhoneGyroZ.push(parseFloat(line[9]));
-        enddict.PhoneGyroY.push(parseFloat(line[10]));
-        enddict.PhoneGyroX.push(parseFloat(line[11]));
-        
-        // watch features at these indices 12 13 14
+            enddict[features[b]].push(parseFloat(line[b]));
 
-        enddict.PhoneMagZ.push(parseFloat(line[15]));
-        enddict.PhoneMagY.push(parseFloat(line[16]));
-        enddict.PhoneMagX.push(parseFloat(line[17]));
-    
-        // watch features at these indices 18 19 20
+            b += 1;
+        }
 
         i += 1;
     }
+
+    console.log("ENDDICT", enddict);
 
     return enddict;
 }
@@ -1738,6 +2021,8 @@ async function fetchCSV(url) {
         console.log(data);
         optimaldata = makesampledict(data);
         console.log(optimaldata);
+        splitDataOptimal();
+        console.log("FINAL",optimaldata);
         updateOptimalGraph();
     } catch (error) {
         console.error('Error fetching CSV:', error);
@@ -1819,7 +2104,7 @@ let predictions = {
 };
 let sendData;
 
-fetchCSV('https://concretecanoe.skparab1.com/assets/Anthony_Optimal_Split_Forweb.csv');
+fetchCSV('https://concretecanoe.skparab1.com/assets/Paddling data new stuff.csv');
 
 // load the settings from localstorage
 let theme = localStorage.getItem('bttheme');
