@@ -12,7 +12,7 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: rgb(36, 35, 35);
   background-attachment: fixed;
   height: 100vh;
 
@@ -22,11 +22,11 @@ body {
 }
 
 :root {
-  --bg: white;
+  --bg: #EAF6ED;
   --contrast: black;
   --slight: rgb(220,220,220);
-  --main: #0d6efd;
-  --secondary: #0a4bad;
+  --main: #267D28;
+  --secondary: #59905A;
   --bgslight: rgba(255,255,255,0.6);
   --br: 0px;
 }
@@ -218,7 +218,7 @@ button {
 
 .deletenode:hover{
   background: rgb(176, 27, 7);
-  color: white;
+  color: #EAF6ED;
  }
 
 .wrong {
@@ -282,7 +282,7 @@ nav {
   top: 0px;
   right: 0px;
   width: 100%;
-  background-color: rgb(36, 35, 35);
+  background-color: var(--bg);
   z-index: 1000;
 }
 
@@ -318,7 +318,7 @@ nav {
   display: block;
   background-color: rgb(71, 71, 71);
   border-radius: 5px;
-  color: white;
+  color: #EAF6ED;
   transition: background-color 0.25s;
   cursor: pointer;
 }
@@ -329,7 +329,7 @@ nav {
   display: block;
   background-color: rgb(71, 71, 71);
   border-radius: 5px;
-  color: white;
+  color: #EAF6ED;
   transition: background-color 0.25s;
   cursor: not-allowed;
   opacity: 0.5;
@@ -357,7 +357,7 @@ nav {
 
 
 .headername{
-  color:white;
+  color:#EAF6ED;
   font-family: GlacierIndifference;
   font-size: 25px;
   padding: 0.63rem;
@@ -484,7 +484,7 @@ nav {
   background-color: var(--bg);
   border: 2px solid var(--main);
   border-radius: 25px;
-  color: white;
+  color: #EAF6ED;
   text-align: center;
   opacity: 0;
   transition: opacity 0.25s;
@@ -745,7 +745,7 @@ input:checked + .slider:before {
   overflow: hidden;
   border-radius: 15px;
   margin-bottom: 15px;
-  color: white;
+  color: #EAF6ED;
 }
 
 .myBar {
@@ -840,7 +840,7 @@ input:checked + .slider:before {
   width: 66%;
   margin-left: 16.5%;
   font-size: 25px;
-  color: white;
+  color: #EAF6ED;
   transition: background-color 0.25s, opacity 0.25s;
   cursor: pointer;
 }
@@ -870,7 +870,7 @@ input[type="file"] {
   display: inline-block;
   padding: 6px 12px;
   cursor: pointer;
-  color: white;
+  color: #EAF6ED;
 }
 
 .upload-text{
@@ -892,7 +892,7 @@ input[type="file"] {
 
 .point {
   position: absolute;
-  background-color: var(--main);
+  background-color: var(--secondary);
   width: 1%;
   aspect-ratio: 1/1;
   border-radius: 100%;
@@ -954,7 +954,7 @@ input[type="file"] {
 }
 
 .fullheightbox{
-  height: 90vh;
+  height: 83vh;
   width: 90%;
   margin-left: 5%;
   border: 3px solid var(--main);
@@ -965,7 +965,7 @@ input[type="file"] {
 
 .placetext {
   font-size: 30px;
-  color: white;
+  color: #EAF6ED;
   margin-top: 3vh;
 }
 
@@ -974,7 +974,7 @@ input[type="file"] {
   right: 54%;
   height: 30px;
   background-color: var(--bgslight);
-  color: white;
+  color: #EAF6ED;
   border-radius: 10px;
   border: 3px solid var(--main);
 }
@@ -1032,4 +1032,16 @@ input[type="file"] {
   width: 30px;
   height: 30px;
   margin: 15px;
+}
+
+.indicatordot {
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background-color: red;
+  margin: 5px;
+  margin-top: -29px;
+  margin-left: 360px;
+  
+  transition: background-color 0.5s;
 }

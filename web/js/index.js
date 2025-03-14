@@ -45,8 +45,8 @@ function toggletheme(override){
         r.style.setProperty('--bg', 'white');
         r.style.setProperty('--bgslight', 'rgba(255,255,255,0.6)');
         r.style.setProperty('--contrast', 'black');
-        r.style.setProperty('--main', '#0d6efd');
-        r.style.setProperty('--secondary', '#0a4bad');
+        r.style.setProperty('--main', '#267D28');
+        r.style.setProperty('--secondary', '#59905A');
         r.style.setProperty('--slight', 'rgb(220,220,220)');
     } else {
         // make dark
@@ -56,8 +56,8 @@ function toggletheme(override){
         r.style.setProperty('--bgslight', 'rgba(30,30,30,0.6)');
         r.style.setProperty('--bg', 'black');
         r.style.setProperty('--contrast', 'white');
-        r.style.setProperty('--main', '#0d6efd');
-        r.style.setProperty('--secondary', '#0a4bad');
+        r.style.setProperty('--main', '#267D28');
+        r.style.setProperty('--secondary', '#59905A');
         r.style.setProperty('--slight', 'rgb(30, 30, 30)');
     }
 }
@@ -71,8 +71,8 @@ function forcedark(){
     r.style.setProperty('--bgslight', 'rgba(30,30,30,0.6)');
     r.style.setProperty('--bg', 'black');
     r.style.setProperty('--contrast', 'white');
-    r.style.setProperty('--main', '#0d6efd');
-    r.style.setProperty('--secondary', '#0a4bad');
+    r.style.setProperty('--main', '#267D28');
+    r.style.setProperty('--secondary', '#59905A');
     r.style.setProperty('--slight', 'rgb(30, 30, 30)');
 }
 
@@ -114,17 +114,29 @@ function switchscreens(){
     document.getElementById("screen1").style.display = "none";
     document.getElementById("screen2").style.display = "block";
 
-    // the dict makedict returns is not important at this point
-    makedict(phoneAccelerometerCSV, "PhoneAccel");
-    makedict(phoneGyroscopeCSV, "PhoneGyro");
-    makedict(phoneMagnetometerCSV, "PhoneMag");
+    try {            
+        // the dict makedict returns is not important at this point
+        makedict(phoneAccelerometerCSV, "PhoneAccel", sampleDict);
+        makedict(phoneGyroscopeCSV, "PhoneGyro", sampleDict);
+        makedict(phoneMagnetometerCSV, "PhoneMag", sampleDict);
 
-    makedict(LeftWatchCSV, "LeftWatch");
-    makedict(RightWatchCSV, "RightWatch");
-    
-    splitdata();
+        makedict(LeftWatchCSV, "LeftWatch", sampleDict);
+        makedict(RightWatchCSV, "RightWatch", sampleDict);
 
-    updateOptimalGraph();
+
+        
+        splitdata();
+
+        updateOptimalGraph();
+    } catch (error) {
+        // show fake
+        alert("failed. show fake");
+    }
+}
+
+
+function showFake(){
+
 }
 
 function initDraw(){
@@ -470,7 +482,7 @@ function redrawlite(){
     drawPoint(point[0]/tickXincrement*10, (point[1]-tickYbasis)/tickYincrement*10*2, i, true)
 }
 
-function makedict(datastr, type){
+function makedict(datastr, type, ultimateWriteDict){
     let spltup = datastr.split('\n');
 
     let enddict = {
@@ -499,32 +511,31 @@ function makedict(datastr, type){
 
 
         if (type == "PhoneAccel"){
-            sampleDict.PhoneTimes = enddict.time;
-            sampleDict.PhoneAccelX = enddict.x;
-            console.log("READINGGG", sampleDict.PhoneAccelX);
-            sampleDict.PhoneAccelY = enddict.y;
-            sampleDict.PhoneAccelZ = enddict.z;
+            ultimateWriteDict.PhoneTimes = enddict.time;
+            ultimateWriteDict.PhoneAccelX = enddict.x;
+            ultimateWriteDict.PhoneAccelY = enddict.y;
+            ultimateWriteDict.PhoneAccelZ = enddict.z;
         } else if (type == "PhoneGyro"){
-            sampleDict.PhoneGyroX = enddict.x;
-            sampleDict.PhoneGyroY = enddict.y;
-            sampleDict.PhoneGyroZ = enddict.z;
+            ultimateWriteDict.PhoneGyroX = enddict.x;
+            ultimateWriteDict.PhoneGyroY = enddict.y;
+            ultimateWriteDict.PhoneGyroZ = enddict.z;
         } else if (type == "PhoneMag"){
-            sampleDict.PhoneMagX = enddict.x;
-            sampleDict.PhoneMagY = enddict.y;
-            sampleDict.PhoneMagZ = enddict.z;
+            ultimateWriteDict.PhoneMagX = enddict.x;
+            ultimateWriteDict.PhoneMagY = enddict.y;
+            ultimateWriteDict.PhoneMagZ = enddict.z;
         } else if (type == "WatchAccel"){
-            sampleDict.WatchTimess = enddict.time;
-            sampleDict.WatchAccelX = enddict.x;
-            sampleDict.WatchAccelY = enddict.y;
-            sampleDict.WatchAccelZ = enddict.z;
+            ultimateWriteDict.WatchTimess = enddict.time;
+            ultimateWriteDict.WatchAccelX = enddict.x;
+            ultimateWriteDict.WatchAccelY = enddict.y;
+            ultimateWriteDict.WatchAccelZ = enddict.z;
         } else if (type == "WatchGyro"){
-            sampleDict.WatchGyroX = enddict.x;
-            sampleDict.WatchGyroY = enddict.y;
-            sampleDict.WatchGyroZ = enddict.z;
+            ultimateWriteDict.WatchGyroX = enddict.x;
+            ultimateWriteDict.WatchGyroY = enddict.y;
+            ultimateWriteDict.WatchGyroZ = enddict.z;
         } else if (type == "WatchMag"){
-            sampleDict.WatchMagX = enddict.x;
-            sampleDict.WatchMagY = enddict.y;
-            sampleDict.WatchMagZ = enddict.z;
+            ultimateWriteDict.WatchMagX = enddict.x;
+            ultimateWriteDict.WatchMagY = enddict.y;
+            ultimateWriteDict.WatchMagZ = enddict.z;
         }
     } else {
         // now the new stuff
@@ -626,11 +637,34 @@ function makedict(datastr, type){
         let attributes = ["Times","Roll", "Pitch", "Yaw", "RotX", "RotY", "RotZ", "GravX", "GravY", "GravZ", "DMUAccelX", "DMUAccelY", "DMUAccelZ", "QuatW", "QuatX", "QuatY", "QuatZ", "AccelX", "AccelY", "AccelZ"];
 
         for (attr of attributes){
-            sampleDict[type+attr] = enddict[type+attr];
+            ultimateWriteDict[type+attr] = enddict[type+attr];
         }
     }
 
     return enddict;
+}
+
+
+
+
+async function saveOperation(){
+
+    let savePhoneAccel = await fetchFile("https://concretecanoe.skparab1.com/assets/serve/AccelerometerUncalibrated.csv");
+    let savePhoneGyro = await fetchFile("https://concretecanoe.skparab1.com/assets/serve/GyroscopeUncalibrated.csv");
+    let savePhoneMag = await fetchFile("https://concretecanoe.skparab1.com/assets/serve/MagnetometerUncalibrated.csv");
+    let saveLeftWatch = await fetchFile("https://concretecanoe.skparab1.com/assets/serve/LeftWatch.csv");
+    let saveRightWatch = await fetchFile("https://concretecanoe.skparab1.com/assets/serve/RightWatch.csv");
+
+    makedict(savePhoneAccel, "PhoneAccel", sampleDict);
+    makedict(savePhoneGyro, "PhoneGyro", sampleDict);
+    makedict(savePhoneMag, "PhoneMag", sampleDict);
+
+    makedict(saveLeftWatch, "LeftWatch", sampleDict);
+    makedict(saveRightWatch, "RightWatch", sampleDict);
+    
+    splitdata();
+
+    updateOptimalGraph();
 }
 
 
@@ -661,6 +695,7 @@ while (i < 4){
         } else {
 
             if (j == 1){
+                prodapi();
                 // this should require no change really
 
                 const file1 = event.target.files[0];
@@ -1247,10 +1282,19 @@ async function splitdata(){
         wrstart += 1
     }
 
+    try {
 
+        console.log("SAMPLER", strokearr[0]["LeftWatchAccelX"]);
+        console.log("SAMPLER1 len", strokearr[0]["LeftWatchAccelX"].length);
+    } catch (error) {
+        saveOperation();
+        // we save it mang
+        
+        // indicate the save
+        document.getElementById("indicatordot").style.backgroundColor = "orange";
 
-    console.log("SAMPLER", strokearr[0]["LeftWatchAccelX"]);
-    console.log("SAMPLER1 len", strokearr[0]["LeftWatchAccelX"].length);
+        throw "Alignment or splitting failed";
+    }
 
 
 
@@ -1416,8 +1460,10 @@ async function splitdata(){
     console.log("Sampler 2 leftwatch", sendData[0]["LeftWatchAccelX"])
     console.log("Sampler 2 rightwatch", sendData[0]["RightWatchAccelX"])
 
-    i = 2;
-    while (i < sendData.length - 2){
+    let firstRun = true;
+
+    i = 0;
+    while (i < sendData.length){
 
         let spr = splitIntoParts(strokearray[i]);
 
@@ -1432,9 +1478,15 @@ async function splitdata(){
             console.log("pull",pullSummary);
             console.log("recovery",recoverySummary);
 
-            await getPrediction("catch", catchSummary, strokearr, strokearray, i-2);
-            await getPrediction("pull", pullSummary, strokearr, strokearray, i-2);
-            await getPrediction("recovery", recoverySummary, strokearr, strokearray, i-2);
+            await getPrediction("catch", catchSummary, strokearr, strokearray, i-2, firstRun);
+            await getPrediction("pull", pullSummary, strokearr, strokearray, i-2, firstRun);
+            await getPrediction("recovery", recoverySummary, strokearr, strokearray, i-2, firstRun);
+
+            firstRun = false;
+
+            // alert("one stroke");
+
+            // await sleep(1000);
 
 
         } // else just skip over it
@@ -1443,7 +1495,7 @@ async function splitdata(){
         i += 1;
     }
 
-    displayPie(strokearr, strokearray, i);
+    displayPie(strokearr, strokearray, i, false, firstRun);
 }
 
 function getGoodPercentage(part){
@@ -1455,7 +1507,60 @@ function getGoodPercentage(part){
 }
 
 
-function displayPie(strokearr, strokearray, i, forcedone=false){
+function setChart(part, decimalGood){
+
+    // console.log("party is ", part);
+    let chart = document.getElementById(part+"chart");
+
+    chart.style.backgroundImage = `conic-gradient(
+        green ${decimalGood*360}deg,
+        red 0 ${decimalGood*360}deg
+    )`;
+}
+
+async function updateChart(part, newDecimal){
+
+    try {
+        let chart = document.getElementById(part+"chart");
+        let prevDecimal = parseFloat(String(chart.style.backgroundImage).split(',')[0].split("green ")[1].split("deg")[0])/360;
+    
+    
+        let disp = document.getElementById(part+"disp");
+    
+        disp.innerHTML = `${Math.round(newDecimal*100)}% Optimal (${countgood(part)}/${predictions[part].length})`;
+    
+    
+        let i = 0;
+        while (i < 100){
+            let currentDecimal = prevDecimal + (newDecimal - prevDecimal)*(i/100);
+            setChart(part, currentDecimal);
+    
+            await sleep();
+    
+            i += (105-i)/50;
+        }
+    } catch (error) {
+        console.log("Error in updateChart", error);
+    }
+
+}
+
+
+async function displayPie(strokearr, strokearray, i, forcedone, firstRun){
+
+    // let newp1 = getGoodPercentage('catch');
+    // let newp2 = getGoodPercentage('pull');
+    // let newp3 = getGoodPercentage('recovery');
+
+    // let b = 0;
+
+    // while (b < 100){
+    //     BE CAREFUL IF UNCOMMENTING THE BELOW STATEMENT, the PARAMETERS OF DISPLAYPIEANIM HAVE CHANGED
+    //     displayPieAnim(strokearr, strokearray, i, forcedone, previous1+(newp1-previous1)*b/100, previous2+(newp2-previous2)*b/100, previous3+(newp3-previous3)*b/100);
+    //     b += 1;
+    //     await sleep();
+    // }
+    
 
     let adden = ``;
     if (strokearray.length-5 != i || forcedone){
@@ -1464,49 +1569,54 @@ function displayPie(strokearr, strokearray, i, forcedone=false){
         loadingmotionon = false;
     }
 
-    analysisdisplay.innerHTML = `
-    <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
-    <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length-5}</h2>
+    if (firstRun){
 
-    `+adden+`
-   
-    <div class="piechart" style="background-image: conic-gradient(
-        green ${getGoodPercentage('catch')*360}deg,
-        red 0 ${(1-getGoodPercentage('catch'))*360}deg
-    );">
-        <h2 style='margin-top: -85px;'>Catch</h2>
-        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('catch')*100)}% Optimal (${countgood('catch')}/${predictions['catch'].length})</h2>
-    </div>
+        analysisdisplay.innerHTML = `
+        <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
+        <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length-5}</h2>
 
-    <div class="piechart" style="background-image: conic-gradient(
-        green ${getGoodPercentage('pull')*360}deg,
-        red 0 ${(1-getGoodPercentage('pull'))*360}deg
-    );">
-        <h2 style='margin-top: -85px;'>Pull</h2>
-        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('pull')*100)}% Optimal (${countgood('pull')}/${predictions['pull'].length})</h2>
-    </div>
-
-    <div class="piechart" style="background-image: conic-gradient(
-        green ${getGoodPercentage('recovery')*360}deg,
-        red 0 ${(1-getGoodPercentage('recovery'))*360}deg
-    );">
-        <h2 style='margin-top: -85px;'>Recovery</h2>
-        <h4 style='margin-top: 0px; color: var(--main);'>${Math.round(getGoodPercentage('recovery')*100)}% Optimal (${countgood('recovery')}/${predictions['recovery'].length})</h2>
-    </div>
-
-    <div class="pielegend" style="padding-top: 45px;">
-        <div class="key" style="background-color: green;"></div>
-        <h3 style='color: green;'>Optimal strokes</h2>
-    </div>
-    <div class="pielegend">
-        <div class="key" style="background-color: red;"></div>
-        <h3 style='color: red;'>Inoptimal strokes</h2>
-    </div>
+        `+adden+`
     
+        <div id="catchchart" class="piechart" style="background-image: conic-gradient(
+            green ${getGoodPercentage('catch')*360}deg,
+            red 0 ${(1-getGoodPercentage('catch'))*360}deg
+        );">
+            <h2 style='margin-top: -85px;'>Catch</h2>
+            <h4 style='margin-top: 0px; color: var(--main);' id="catchdisp">${Math.round(getGoodPercentage('catch')*100)}% Optimal (${countgood('catch')}/${predictions['catch'].length})</h2>
+        </div>
 
+        <div id="pullchart" class="piechart" style="background-image: conic-gradient(
+            green ${getGoodPercentage('pull')*360}deg,
+            red 0 ${(1-getGoodPercentage('pull'))*360}deg
+        );">
+            <h2 style='margin-top: -85px;'>Pull</h2>
+            <h4 style='margin-top: 0px; color: var(--main);' id="pulldisp">${Math.round(getGoodPercentage('pull')*100)}% Optimal (${countgood('pull')}/${predictions['pull'].length})</h2>
+        </div>
 
-    `;  
+        <div id="recoverychart" class="piechart" style="background-image: conic-gradient(
+            green ${getGoodPercentage('recovery')*360}deg,
+            red 0 ${(1-getGoodPercentage('recovery'))*360}deg
+        );">
+            <h2 style='margin-top: -85px;'>Recovery</h2>
+            <h4 style='margin-top: 0px; color: var(--main);' id="recoverydisp">${Math.round(getGoodPercentage('recovery')*100)}% Optimal (${countgood('recovery')}/${predictions['recovery'].length})</h2>
+        </div>
+
+        <div class="pielegend" style="padding-top: 45px;">
+            <div class="key" style="background-color: green;"></div>
+            <h3 style='color: green;'>Optimal strokes</h2>
+        </div>
+        <div class="pielegend">
+            <div class="key" style="background-color: red;"></div>
+            <h3 style='color: red;'>Inoptimal strokes</h2>
+        </div>
+        `;
+    }
+
+    updateChart("catch", getGoodPercentage('catch'));
+    updateChart("pull", getGoodPercentage('pull'));
+    updateChart("recovery", getGoodPercentage('recovery'));
 }
+
 
 
 function countgood(part){
@@ -1572,7 +1682,7 @@ function getStrokeToSend(num){
     return str;
 }
 
-async function getPrediction(part, sendstr, strokearr, strokearray, i){
+async function getPrediction(part, sendstr, strokearr, strokearray, i, firstRun){
     // let strokedictsend = getStrokeToSend(num);
     let url = "https://predictor-vu7p.onrender.com/predict/"+part+"?"+sendstr;
 
@@ -1604,7 +1714,7 @@ async function getPrediction(part, sendstr, strokearr, strokearray, i){
         console.log(data);
         console.log(parseInt(data.prediction));
         predictions[part].push(parseInt(data.prediction));
-        displayPie(strokearr, strokearray, i);
+        displayPie(strokearr, strokearray, i, false, firstRun);
     })
 }
 
@@ -1970,24 +2080,24 @@ function makesampledict(datastr){
 
 async function prodapi(){
 
-    document.getElementById("prodapi").innerHTML = "Prodding...";
+    document.getElementById("indicatordot").style.backgroundColor = "red";
 
+    let produrl = "https://predictor-vu7p.onrender.com/predict/catch?&PhoneAccelX=-0.5548493169969128,-0.8574532290296533,0.19111578158111334,-1.1131591796875,-0.201904296875,0.9112548828125,-0.6220016479492188,-0.43102264404296875&PhoneAccelY=-0.852233394499748,0.4565321711220944,0.13653736615273696,-1.1604461669921875,-0.4539794921875,0.7064666748046875,-0.9377517700195312,-0.7930526733398438&PhoneAccelZ=0.22934329125189012,-0.08747782684468514,0.12305182865271355,-0.09918212890625,0.5132598876953125,0.6124420166015625,0.13271331787109375,0.327484130859375&PhoneGyroX=-0.4976881258189678,1.6295239073703034,0.4420963402131358,-1.15750253200531,1.2488899230957031,2.406392455101013,-0.6442253291606903,-0.4567030966281891&PhoneGyroY=-0.3208550938795651,0.9810760081772895,0.47387759276913144,-1.2477353811264038,1.3192524909973145,2.5669878721237183,-0.642156571149826,-0.10631405562162399&PhoneGyroZ=-0.5464560792691284,-1.8750796720760088,0.39386961317679986,-1.8588597774505615,-0.08103253692388535,1.7778272405266762,-0.5379999279975891,-0.32432375848293304&PhoneMagX=-221.40218254827684,-0.5924871985885306,13.244187762373382,-243.65792846679688,-207.36572265625,36.292205810546875,-234.50418853759766,-210.1790008544922&PhoneMagY=2.6787562216481855,0.08640380308630355,8.250755142626197,-8.10845947265625,14.620941162109375,22.729400634765625,-6.046058654785156,11.162422180175781&PhoneMagZ=-417.19176163211944,0.6433695282719561,8.132252277332444,-427.71575927734375,-399.92620849609375,27.78955078125,-424.3612976074219,-413.2318878173828&LeftWatchRoll=-0.3224907179335254,-0.21233155857331368,0.16964322337051085,-0.5958249616228634,-0.025189885510470182,0.5706350761123932,-0.4869048711647251,-0.17415605320780603&LeftWatchPitch=-0.18654093582249048,-0.4668203255410034,0.19398120350194353,-0.481953632297879,0.018816831497090538,0.5007704637949696,-0.4122534851599467,-0.015807390190173586&LeftWatchYaw=2.08583380447338,-0.6340951220353979,0.23499167258240802,1.674953411381184,2.373985582771242,0.6990321713900582,1.8439762823122152,2.270476775405216&LeftWatchRotX=0.47542446137466016,0.6914524484505444,0.7915831455826581,-0.5146840810775757,2.050466775894165,2.5651508569717407,-0.15772706270217896,1.1077850461006165&LeftWatchRotY=-0.23393076363830798,-0.32623264210138386,1.1303566562745435,-2.092724561691284,1.6094917058944702,3.7022162675857544,-1.3242843747138977,0.6407795250415802&LeftWatchRotZ=0.12080910469916079,-0.2446228698896849,0.5473643310603866,-1.1878242492675781,1.1055268049240112,2.2933510541915894,-0.33507147431373596,0.6000050008296967&LeftWatchGravX=-0.30288028324984256,-0.1594224075302467,0.15558633192748456,-0.5508414506912231,-0.02258150279521942,0.5282599478960037,-0.45061272382736206,-0.16892855614423752&LeftWatchGravY=0.18146724873522838,0.4492340230590124,0.18727566658766315,-0.018815720453858376,0.4635111689567566,0.48232688941061497,0.015806729439646006,0.40067237615585327&LeftWatchGravZ=-0.901360769425669,-0.021649093986547387,0.06413978263582994,-0.9913842678070068,-0.8055594563484192,0.18582481145858765,-0.9671691954135895,-0.8444651961326599&LeftWatchDMUAccelX=0.06962781501633505,-0.41014842935208673,0.1942942270660115,-0.3933815062046051,0.5099067687988281,0.9032882750034332,-0.043080560863018036,0.22019487619400024&LeftWatchDMUAccelY=0.05559262331394899,0.8195826271949341,0.23288191658898816,-0.5094636678695679,0.9383381605148315,1.4478018283843994,-0.06435088440775871,0.18033070117235184&LeftWatchDMUAccelZ=0.09423794381080135,0.6921361493219436,0.3744043644416272,-0.5098044276237488,0.8912678956985474,1.4010723233222961,-0.17780163884162903,0.4040558934211731&LeftWatchQuatW=0.47495493327631993,0.7476136653328773,0.0877372501086216,0.36220374712643577,0.6488508825163025,0.28664713538986675,0.4076160282924604,0.5443476503288887&LeftWatchQuatX=0.08360728146001146,-0.6131596792469318,0.10912180984503199,-0.14292011948510386,0.2323232690117579,0.3752433884968618,0.039315963334184946,0.164876834029244&LeftWatchQuatY=-0.14910972615646564,-0.16535587374193586,0.09138674842526721,-0.2851875997311525,-0.04526634083952807,0.2399212588916244,-0.23863409227038002,-0.05231866021237657&LeftWatchQuatZ=0.8447534613589703,-0.7360953673004821,0.06233363485371012,0.7258068439871653,0.9114972652350802,0.1856904212479149,0.7885490104695345,0.8920318699660171&LeftWatchAccelX=-0.21489383328345515,-0.3598109822833986,0.30250544177148214,-0.8482513427734375,0.288238525390625,1.1364898681640625,-0.483001708984375,0.01984405517578125&LeftWatchAccelY=0.2348357169858871,0.2333986129010844,0.2761046379036184,-0.2462005615234375,0.980377197265625,1.2265777587890625,-0.004638671875,0.46346282958984375&LeftWatchAccelZ=-0.8202252541818926,0.7484346585392587,0.42569842589660445,-1.4705657958984375,0.081939697265625,1.5525054931640625,-1.1219482421875,-0.4871063232421875&RightWatchRoll=0.4333975969922496,-0.20381166213222024,0.528355507170476,-0.335116504308223,1.0360567299210774,1.3711732342293004,-0.11494995045129368,0.9616537127674394&RightWatchPitch=0.6543135448101463,0.287544296692844,0.05364413454879082,0.5674179694775421,0.7636259971535366,0.19620802767599455,0.6134301302734093,0.7019034892720182&RightWatchYaw=0.3073865582252421,0.5728980312048444,0.5472038826037708,-0.2508816114461587,1.2029427231360688,1.4538243345822275,-0.18065489154441622,0.87413091826951&RightWatchRotX=0.1297898654255175,-0.12995503152846766,0.5776489735272816,-1.4569824934005737,1.2925446033477783,2.749527096748352,-0.18204016983509064,0.4716707915067673&RightWatchRotY=-0.08324341122962294,0.6640234390623672,1.368652138490624,-2.035672187805176,2.6261837482452393,4.661855936050415,-1.2480437755584717,0.599869430065155&RightWatchRotZ=0.6176808724900887,0.23477200736049866,1.2868523597984374,-1.0291016101837158,2.53708815574646,3.566189765930176,-0.6159957945346832,1.9948235154151917&RightWatchGravX=0.29261533728229905,-0.2808303681200524,0.36731983514418715,-0.2601272165775299,0.6974886655807495,0.9576158821582794,-0.0895293578505516,0.6512177586555481&RightWatchGravY=-0.6077407055324123,-0.22438821374200535,0.042281131746955664,-0.6915451884269714,-0.5374564528465271,0.15408873558044434,-0.6456723213195801,-0.5756755471229553&RightWatchGravZ=-0.6206556029858128,0.2246453328912451,0.15621115319538034,-0.8147290349006653,-0.397553026676178,0.4171760082244873,-0.7587997019290924,-0.4500434696674347&RightWatchDMUAccelX=0.10696634710315735,0.4440026083204952,0.2432769441750424,-0.5475300550460815,0.6993097066879272,1.2468397617340088,-0.0029678866267204285,0.18239831924438477&RightWatchDMUAccelY=-0.07815629532260279,0.555580112490048,0.2731295456471971,-0.5862306356430054,0.5404738187789917,1.126704454421997,-0.29446810483932495,0.1229223906993866&RightWatchDMUAccelZ=0.14075516596917184,0.4212892908500342,0.27985386593290923,-0.31758418679237366,0.6427867412567139,0.9603709280490875,-0.08057336509227753,0.36493784189224243&RightWatchQuatW=0.8575287881650462,0.04988909887293632,0.04731737305724289,0.7725055262919829,0.9338889177423864,0.16138339145040348,0.8285429673936648,0.8999786731621748&RightWatchQuatX=0.3162823537204858,0.0697380600426895,0.020038886234317713,0.2575060871359155,0.3606953346660584,0.10318924753014291,0.3048775479700132,0.32465127304563535&RightWatchQuatY=0.24997331169753131,-0.19507949023877832,0.16422605693252074,0.0015257536775333971,0.4434998123567909,0.44197405867925754,0.08702610022286816,0.41855541234624916&RightWatchQuatZ=0.2070511004445106,0.6736054392828135,0.173563101098215,0.01328395004724814,0.527685031177756,0.5144010811305079,0.06103518419934845,0.35716063669325476&RightWatchAccelX=0.39992597026209675,-0.4231840207453347,0.399466226281406,-0.3188629150390625,0.923553466796875,1.2424163818359375,-0.06125640869140625,0.7580718994140625&RightWatchAccelY=-0.6854526150611139,0.5918340679976162,0.24384748163964434,-1.1769561767578125,-0.125030517578125,1.0519256591796875,-0.8692550659179688,-0.5335617065429688&RightWatchAccelZ=-0.4801836321430822,0.3029662503826195,0.18837753168302,-0.9671783447265625,-0.09197998046875,0.8751983642578125,-0.595794677734375,-0.35224151611328125";
 
-    fetch("https://predictor-vu7p.onrender.com/predict", {
-        method: 'POST',
+    fetch(produrl, {
+        method: 'GET',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-          },
-        body: url
+          }
     })
     .then(response => {
         return response.json();
     })
     .then(data => {
         console.log(data);
-        console.log(parseInt(data.prediction));
-        document.getElementById("prodapi").innerHTML = "Prod API";
+
+        document.getElementById("indicatordot").style.backgroundColor = "rgb(17, 188, 17)";
     })
      
 
@@ -2027,6 +2137,12 @@ async function fetchCSV(url) {
     } catch (error) {
         console.error('Error fetching CSV:', error);
     }
+}
+
+async function fetchFile(url){
+    const response = await fetch(url);
+    const data = await response.text();
+    return data;
 }
 
 
@@ -2104,7 +2220,19 @@ let predictions = {
 };
 let sendData;
 
+window.onerror = function(error) {
+    alert("errored somewhere");
+    console.log(error);
+};
+
+// prod it right away, and tell if it gets active
+prodapi();
+
 fetchCSV('https://concretecanoe.skparab1.com/assets/Paddling data new stuff.csv');
+
+
+
+//https://concretecanoe.skparab1.com/assets/serve/LeftWatch.csv
 
 // load the settings from localstorage
 let theme = localStorage.getItem('bttheme');
