@@ -127,6 +127,8 @@ function switchscreens(){
         
         splitdata();
 
+        document.getElementById("feature").value = "LeftWatchQuatW";
+
         updateOptimalGraph();
     } catch (error) {
         // show fake
@@ -191,14 +193,16 @@ function drawPoint(x, y, n, grow) {
 }
 
 
-function graphString(source, feature) {
+function graphString(source, feature, upTo=100) {
+
+    // upto is how much 100 = 100%
 
     let arr = source[feature];
 
     let endstr = ""
 
     let i = 0;
-    while (i < arr.length){
+    while (i < arr.length*upTo/100){
         if (!isNaN(arr[i]) && arr[i] != null){
             // point[0]/tickXincrement*10, point[1]/tickYincrement*10*2
             if (source == optimaldata){
@@ -2105,14 +2109,33 @@ async function prodapi(){
 
 let optimaldata;
 
+async function animatePlotOptimalFeature(source, feature, drawfunc, graph){
+    let i = 0;
+
+    // predraw clears it? - YES
+
+    while (i < 100){
+        drawfunc(feature);
+        graph.innerHTML += graphString(source, feature, i);
+
+        await sleep(10);
+        i += (108-i)/50;
+    }
+}
+
 
 function plotOptimalFeature(feature){
-    predraw(feature);
-    plotgraph.innerHTML += graphString(optimaldata, feature);
+    // predraw(feature);
+    // plotgraph.innerHTML += graphString(optimaldata, feature);
+
+    animatePlotOptimalFeature(optimaldata, feature, predraw, plotgraph);
 
     
-    predrawsecond(feature);
-    plotgraph2.innerHTML += graphString(sampleDict, feature);
+    // predrawsecond(feature);
+    // plotgraph2.innerHTML += graphString(sampleDict, feature, 50);
+
+    animatePlotOptimalFeature(sampleDict, feature, predrawsecond, plotgraph2);
+
 
     // CAREFUL: Not stored in pointsarr
 }
