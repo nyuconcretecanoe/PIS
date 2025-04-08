@@ -724,6 +724,15 @@ async function askGPT(sampleGPTdata, optimalGPTdata){
         console.log("GPT HTML",html);
 
         loadingmotionon = false;
+
+        (async () => {
+            document.getElementById("loadinganim").style.opacity = 0;
+            await sleep(500);
+            document.getElementById("loadinganim").style.display = "none";
+            GPTdisplay.style.display = "block";
+            await sleep(500);
+            GPTdisplay.style.opacity = 1;
+        })();  
     })
 }
 
@@ -1635,7 +1644,7 @@ async function displayPie(strokearr, strokearray, i, forcedone, firstRun){
     let adden = ``;
     if (strokearray.length-5 != i || forcedone){
         // adden = `<h2 style='color: var(--main);'>Analyzing stroke ${i} of ${strokearray.length-5}</h2>`;
-        document.getElementById("loadinganim").style.display = "none";
+        // document.getElementById("loadinganim").style.display = "none";
     }
 
     if (firstRun){
@@ -1807,7 +1816,7 @@ async function loadingmotion(){
         load5.style.opacity = (255-Math.abs(600-loadingdegree))/255;
         load4.style.opacity = (255-Math.abs(700-loadingdegree))/255;
         load2.style.opacity = (255-Math.abs(800-loadingdegree))/255;
-        loadingdegree += 3;
+        loadingdegree += 5;
 
     
         if (loadingdegree < 300){
@@ -2336,6 +2345,7 @@ let POCKET;
 fetch('./js/pocket.json')
     .then((response) => response.json())
     .then((json) => {POCKET = json;});
+
 
 //init object to store window properties
 var windowSize = {
