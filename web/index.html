@@ -162,7 +162,7 @@
           </div>
         </div>
         <div class="halfleft">
-          <div class="fullheightbox">
+          <div class="fullheightbox" style="overflow-y: none;">
             <h1 class="placetext">
               Machine Learning Analysis
             </h1>
@@ -171,27 +171,29 @@
 
             </div>
 
-
-            <div class="loadinganim" id="loadinganim">
-              <div class="flexrow">
-                <div class="loadingpoint" id="loadingpoint1" style="margin-left: 40px;"></div>
-              </div>
-              <div class="flexrow">
-                <div class="loadingpoint" id="loadingpoint2" style="margin-left: 12px; margin-top: -7px;"></div>
-                <div class="loadingpoint" id="loadingpoint3" style="margin-left: 36px; margin-top: -7px;"></div>
-              </div>
-              <div class="flexrow">
-                <div class="loadingpoint" id="loadingpoint4" style="margin-top: 7px;"></div>
-                <div class="loadingpoint" id="loadingpoint5" style="margin-left: 60px; margin-top: 7px;"></div>
-              </div>
-              <div class="flexrow">
-                <div class="loadingpoint" id="loadingpoint6" style="margin-left: 12px; margin-top: 7px;"></div>
-                <div class="loadingpoint" id="loadingpoint7" style="margin-left: 36px; margin-top: 7px;"></div>
-              </div>
-              <div class="flexrow">
-                <div class="loadingpoint" id="loadingpoint8" style="margin-left: 40px; margin-top: -7px;"></div>
+            <div id="GPTdisplay" style="color: white; width: 90%; margin-left: 5%; margin-top: 43%; height: 37.5%; overflow-y: scroll;">
+              <div class="loadinganim" id="loadinganim">
+                <div class="flexrow">
+                  <div class="loadingpoint" id="loadingpoint1" style="margin-left: 40px;"></div>
+                </div>
+                <div class="flexrow">
+                  <div class="loadingpoint" id="loadingpoint2" style="margin-left: 12px; margin-top: -7px;"></div>
+                  <div class="loadingpoint" id="loadingpoint3" style="margin-left: 36px; margin-top: -7px;"></div>
+                </div>
+                <div class="flexrow">
+                  <div class="loadingpoint" id="loadingpoint4" style="margin-top: 7px;"></div>
+                  <div class="loadingpoint" id="loadingpoint5" style="margin-left: 60px; margin-top: 7px;"></div>
+                </div>
+                <div class="flexrow">
+                  <div class="loadingpoint" id="loadingpoint6" style="margin-left: 12px; margin-top: 7px;"></div>
+                  <div class="loadingpoint" id="loadingpoint7" style="margin-left: 36px; margin-top: 7px;"></div>
+                </div>
+                <div class="flexrow">
+                  <div class="loadingpoint" id="loadingpoint8" style="margin-left: 40px; margin-top: -7px;"></div>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -212,6 +214,7 @@
       <div class="close" onclick="closeprefs(); closescreen();">Close</div>
     </div>
 
+    <script src="js/showdown.min.js" type="text/javascript"></script>
     <script src="js/statistics.min.js" type="text/javascript"></script>
     <script src="js/index.js"></script>
 

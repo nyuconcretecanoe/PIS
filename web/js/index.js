@@ -1,3 +1,6 @@
+import config from './config';
+console.log("APIKEY",config.API_KEY);
+
 let tickYarr = [];
 let tickXarr = [];
 let pointsarr = [];
@@ -412,7 +415,7 @@ function predrawsecond(feature){
     console.log('feature',feature);
 
     let label;
-    [tickYbasis2, tickYincrement2] = setplotparams(optimaldata[feature]);
+    [tickYbasis2, tickYincrement2] = setplotparams(sampleDict[feature]);
 
     if (feature.includes("Accel")){
         label = "m/s²";
@@ -669,6 +672,62 @@ async function saveOperation(){
     splitdata();
 
     updateOptimalGraph();
+}
+
+
+async function askGPT(sampleGPTdata, optimalGPTdata){
+    fetch('https://openrouter.ai/api/v1/chat/completions', {
+
+        method: 'POST',
+      
+        headers: {
+      
+          Authorization: 'Bearer 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',
+          
+          'Content-Type': 'application/json',
+      
+        },
+      
+        body: JSON.stringify({
+      
+          model: 'deepseek/deepseek-chat:free',
+      
+          messages: [
+      
+            {
+      
+              role: 'user',
+      
+              content: `Below are two arrays of data collected from two different paddlers in two separate but identical canoes. One paddler is performing optimal strokes, while one is performing suboptimal strokes. The data points are Quaternions, and they are measured over time. Can you tell me how a paddler could improve their stroke in the second array? Please answer with specific suggestions backed up with data from this stroke with clear areas for improvement, and use paddling-specific vocabulary. Please only report key observations, and do not include emojis, an introduction, a conclusion, or ask if I would like something else.
+
+                        Suboptimal: ${sampleGPTdata}
+
+                        Optimal:  ${optimalGPTdata}`,
+      
+            },
+      
+          ],
+      
+        }),
+      
+    }).then(response => {
+        return response.json();
+    })
+    .then(data => {
+
+        console.log("GPT data",data.choices[0].message.content);
+
+        var converter = new showdown.Converter();
+        var html = converter.makeHtml(data.choices[0].message.content);
+
+        html = html.replace("ul","ol");
+
+        GPTdisplay.innerHTML = html;
+
+        console.log("GPT HTML",html);
+
+        loadingmotionon = false;
+    })
 }
 
 
@@ -1302,9 +1361,7 @@ async function splitdata(){
 
 
 
-    analysisdisplay.innerHTML = `
-    <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
-    <h2>Analyzing strokes for consistency...</h2>`;
+    analysisdisplay.innerHTML = ``;
 
 
     console.log(streaks);
@@ -1384,6 +1441,9 @@ async function splitdata(){
     last = 0;
     let strokesgone = 0;
 
+    let allQuatW = [];
+    let stopquat = true;
+
     while (pstart < sampleDict["PhoneAccelX"].length && wlstart < sampleDict["LeftWatchRoll"].length
         && wrstart < sampleDict["RightWatchRoll"].length){
         let subj = sampleDict.PhoneGyroX[i];
@@ -1398,6 +1458,8 @@ async function splitdata(){
                 j += 1;
             }
 
+            stopquat = !stopquat;
+
             strokesgone += 1;
 
             console.log(strokesgone);
@@ -1407,6 +1469,10 @@ async function splitdata(){
 
         if (strokesgone >= takestartindex && strokesgone < takestartindex+takelen){
             addReadingPush(newdict, sampleDict, pstart, wlstart, wrstart);
+
+            if (!stopquat){
+                allQuatW.push(sampleDict["LeftWatchQuatW"][wlstart]);
+            }
         }
 
 
@@ -1417,6 +1483,11 @@ async function splitdata(){
     }
 
     sampleDict = newdict;
+
+    console.log(sampleDict);
+    // console.log("allQuatW",allQuatW.toString());
+
+    askGPT("["+allQuatW.toString()+"]", optimalgptsend);
 
 
     // now process senddata, split into strokes and call the model for each one
@@ -1453,9 +1524,7 @@ async function splitdata(){
 
 
 
-    analysisdisplay.innerHTML = `
-    <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
-    <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length}</h2>`;
+    analysisdisplay.innerHTML = ``;
 
     sendData = strokearray;
 
@@ -1478,9 +1547,9 @@ async function splitdata(){
             let pullSummary = convertToSummary(spr[1]);
             let recoverySummary = convertToSummary(spr[2]);
 
-            console.log("catch",catchSummary);
-            console.log("pull",pullSummary);
-            console.log("recovery",recoverySummary);
+            // console.log("catch",catchSummary);
+            // console.log("pull",pullSummary);
+            // console.log("recovery",recoverySummary);
 
             await getPrediction("catch", catchSummary, strokearr, strokearray, i-2, firstRun);
             await getPrediction("pull", pullSummary, strokearr, strokearray, i-2, firstRun);
@@ -1570,14 +1639,11 @@ async function displayPie(strokearr, strokearray, i, forcedone, firstRun){
     if (strokearray.length-5 != i || forcedone){
         // adden = `<h2 style='color: var(--main);'>Analyzing stroke ${i} of ${strokearray.length-5}</h2>`;
         document.getElementById("loadinganim").style.display = "none";
-        loadingmotionon = false;
     }
 
     if (firstRun){
 
         analysisdisplay.innerHTML = `
-        <h2 style='color: var(--main);'>Strokes found: ${strokearr.length}</h2>
-        <h2 style='color: var(--main);'>Consistent strokes found: ${strokearray.length-5}</h2>
 
         `+adden+`
     
@@ -1603,15 +1669,6 @@ async function displayPie(strokearr, strokearray, i, forcedone, firstRun){
         );">
             <h2 style='margin-top: -85px;'>Recovery</h2>
             <h4 style='margin-top: 0px; color: var(--main);' id="recoverydisp">${Math.round(getGoodPercentage('recovery')*100)}% Optimal (${countgood('recovery')}/${predictions['recovery'].length})</h2>
-        </div>
-
-        <div class="pielegend" style="padding-top: 45px;">
-            <div class="key" style="background-color: green;"></div>
-            <h3 style='color: green;'>Optimal strokes</h2>
-        </div>
-        <div class="pielegend">
-            <div class="key" style="background-color: red;"></div>
-            <h3 style='color: red;'>Inoptimal strokes</h2>
         </div>
         `;
     }
@@ -1907,6 +1964,9 @@ async function splitDataOptimal(){
 
     newdict = {};
 
+    let allQuatW = [];
+    let stopquat = true;
+
     i = 0;
     last = 0;
     let strokenumber = 0;
@@ -1927,6 +1987,8 @@ async function splitDataOptimal(){
                 b += 1;
             }
 
+            stopquat = !stopquat;
+
             strokenumber += 1;
 
             // streaks.push(i-last); // will usually be around the threshold
@@ -1939,7 +2001,10 @@ async function splitDataOptimal(){
         if (strokenumber >= takestartindex && strokenumber < takestartindex+takelen){
             
             addReadingPush(newdict, optimaldata, i, i, i);
-
+            
+            if (!stopquat){
+                allQuatW.push(optimaldata["LeftWatchQuatW"][i]);
+            }
         }
         // console.log("right after", newdict);
 
@@ -1949,6 +2014,10 @@ async function splitDataOptimal(){
     }
 
     optimaldata = newdict;
+
+    console.log("optimalQuat", allQuatW.toString());
+
+    optimalgptsend = "["+allQuatW.toString()+"]";
 
 
     // // now process senddata, split into strokes and call the model for each one
@@ -2119,32 +2188,31 @@ async function animatePlotOptimalFeature(source, feature, drawfunc, graph){
         graph.innerHTML += graphString(source, feature, i);
 
         await sleep(10);
-        i += (108-i)/50;
+        i += (108-i)/10;
     }
 }
 
 
-function plotOptimalFeature(feature){
-    // predraw(feature);
-    // plotgraph.innerHTML += graphString(optimaldata, feature);
+function plotOptimalFeature(feature, animate){
 
-    animatePlotOptimalFeature(optimaldata, feature, predraw, plotgraph);
-
-    
-    // predrawsecond(feature);
-    // plotgraph2.innerHTML += graphString(sampleDict, feature, 50);
-
-    animatePlotOptimalFeature(sampleDict, feature, predrawsecond, plotgraph2);
-
+    if (animate){
+        animatePlotOptimalFeature(optimaldata, feature, predraw, plotgraph);
+        animatePlotOptimalFeature(sampleDict, feature, predrawsecond, plotgraph2);
+    } else {
+        predraw(feature);
+        plotgraph.innerHTML += graphString(optimaldata, feature);
+        predrawsecond(feature);
+        plotgraph2.innerHTML += graphString(sampleDict, feature);
+    }
 
     // CAREFUL: Not stored in pointsarr
 }
 
-function updateOptimalGraph(){
+function updateOptimalGraph(animate=true){
     let feature = document.getElementById('feature').value;
     pointsarr = [];
     redraw();
-    plotOptimalFeature(feature);
+    plotOptimalFeature(feature, animate);
 }
 
 async function fetchCSV(url) {
@@ -2243,6 +2311,9 @@ let predictions = {
 };
 let sendData;
 
+let optimalgptsend;
+
+
 window.onerror = function(error) {
     alert("errored somewhere");
     console.log(error);
@@ -2263,6 +2334,38 @@ let angle = localStorage.getItem('btangle');
 let demospeed = localStorage.getItem('btspeed');
 
 let lasttoggle = new Date();
+
+
+//init object to store window properties
+var windowSize = {
+    w: window.outerWidth,
+    h: window.outerHeight,
+    iw: window.innerWidth,
+    ih: window.innerHeight
+};
+  
+window.addEventListener("resize", function() {
+    //if window resizes
+    if (window.outerWidth !== windowSize.w || window.outerHeight !== windowSize.h) {
+        windowSize.w = window.outerWidth; // update object with current window properties
+        windowSize.h = window.outerHeight;
+        windowSize.iw = window.innerWidth;
+        windowSize.ih = window.innerHeight;
+        updateOptimalGraph(false)
+    }
+    //if the window doesn't resize but the content inside does by + or - 5%
+    else if (window.innerWidth + window.innerWidth * .05 < windowSize.iw ||
+        window.innerWidth - window.innerWidth * .05 > windowSize.iw) {
+        updateOptimalGraph(false);
+        windowSize.iw = window.innerWidth;
+    }
+}, false);
+
+// usage
+window.addEventListener('devicepixelratiochange',function(e){
+  // note: browsers will change devicePixelRatio when page zoom changed or system display scale changed
+  console.log('devicePixelRatio changed from '+e.oldValue+' to '+e.newValue);
+});
 
 
 if (theme == null){
