@@ -695,7 +695,7 @@ async function askGPT(sampleGPTdata, optimalGPTdata){
       
               role: 'user',
       
-              content: `Below are two arrays of data collected from two different paddlers in two separate but identical canoes. One paddler is performing optimal strokes, while one is performing suboptimal strokes. The data points are Quaternions, and they are measured over time. Can you tell me how a paddler could improve their stroke in the second array? Please answer with specific suggestions backed up with data from this stroke with clear areas for improvement, and use paddling-specific vocabulary. Please only report key observations, and do not include emojis, an introduction, a conclusion, or ask if I would like something else.
+              content: `Below are two arrays of data collected from two different paddlers in two separate but identical canoes. One paddler is performing optimal strokes, while one is performing suboptimal strokes. The data points are Quaternions, and they are measured over time. Can you tell me how a paddler could improve their stroke in the second array? Please answer with specific suggestions backed up with data from this stroke with clear areas for improvement, and use paddling-specific vocabulary. Please only report key observatisons, and do not include emojis, an introduction, a conclusion, or talk about indices, or ask if I would like something else.
 
                         Suboptimal: ${sampleGPTdata}
 
