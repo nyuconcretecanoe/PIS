@@ -679,7 +679,7 @@ async function askGPT(sampleGPTdata, optimalGPTdata){
       
         headers: {
       
-          Authorization: '',
+          Authorization: POCKET.OpenRouter_KEY,
           
           'Content-Type': 'application/json',
       
@@ -1742,7 +1742,7 @@ function getStrokeToSend(num){
 
 async function getPrediction(part, sendstr, strokearr, strokearray, i, firstRun){
     // let strokedictsend = getStrokeToSend(num);
-    let url = "https://predictor-vu7p.onrender.com/predict/"+part+"?"+sendstr;
+    let url = POCKET.Render_Endpoint+part+"?"+sendstr;
 
     // console.log(url)
 
@@ -2331,10 +2331,11 @@ let angle = localStorage.getItem('btangle');
 let demospeed = localStorage.getItem('btspeed');
 
 let lasttoggle = new Date();
+let POCKET;
 
 fetch('./js/pocket.json')
     .then((response) => response.json())
-    .then((json) => console.log(json));
+    .then((json) => {POCKET = json;});
 
 //init object to store window properties
 var windowSize = {
