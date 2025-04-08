@@ -2332,7 +2332,7 @@ let demospeed = localStorage.getItem('btspeed');
 
 let lasttoggle = new Date();
 
-fetch('./pocket.json')
+fetch('./js/pocket.json')
     .then((response) => response.json())
     .then((json) => console.log(json));
 
