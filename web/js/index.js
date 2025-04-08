@@ -1,6 +1,3 @@
-import config from './config';
-console.log("APIKEY",config.API_KEY);
-
 let tickYarr = [];
 let tickXarr = [];
 let pointsarr = [];
@@ -682,7 +679,7 @@ async function askGPT(sampleGPTdata, optimalGPTdata){
       
         headers: {
       
-          Authorization: 'Bearer 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',
+          Authorization: '',
           
           'Content-Type': 'application/json',
       
@@ -2335,6 +2332,9 @@ let demospeed = localStorage.getItem('btspeed');
 
 let lasttoggle = new Date();
 
+fetch('./pocket.json')
+    .then((response) => response.json())
+    .then((json) => console.log(json));
 
 //init object to store window properties
 var windowSize = {
